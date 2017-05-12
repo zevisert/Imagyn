@@ -1,1 +1,4 @@
 webpage/.env
+webpage/node_modules/
+
+*.log
