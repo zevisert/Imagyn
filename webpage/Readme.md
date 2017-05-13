@@ -13,7 +13,7 @@ Use Node `v7.10.0` and npm `4.2.0` so your dev matches what's on the server. Sug
 
 There's seperate server files for dev and prod. You shouldn't need to edit these for the time being.
 - `dev.js`: Runs an HTTP only server serving the contents of the `static` directory.
- - Requires a `.env` file with `HTTP_PORT` set.
+    - Requires a `.env` file with `HTTP_PORT` set.
 ```
 > npm install
 > echo "HTTP_PORT=8080" > .env
@@ -21,8 +21,9 @@ There's seperate server files for dev and prod. You shouldn't need to edit these
 ```
 
 
-- `prod.js`: Runs an HTTP server that only responds with 301 redirects to the same resource behind HTTPS. The HTTPS server does the same thing that the dev version.
- - Requires a `.env` file with `HTTP_PORT`, `HTTPS_PORT` and `SSL_PASSPHRASE` set.
+- `prod.js`: Runs an HTTP server that only responds with 301 redirects to the same resource behind HTTPS.
+    - The HTTPS server does the same thing that the dev version does.
+    - Requires a `.env` file with `HTTP_PORT`, `HTTPS_PORT` and `SSL_PASSPHRASE` set.
 ```
 > npm install
 > echo -ne "HTTP_PORT=80\nHTTPS_PORT=443\nSSL_PASSPHRASE=<[///]>"
