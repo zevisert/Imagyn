@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Solid State by HTML5 UP</title>
+		<title>Bluebook</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
@@ -15,13 +15,14 @@
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
 	</head>
 	<body>
+		<div id="particles-js" style="position: fixed; width: 100%; height: 100%; z-index: -1;"></div>
 
 		<!-- Page Wrapper -->
 			<div id="page-wrapper">
 
 				<!-- Header -->
 					<header id="header" class="alt">
-						<h1><a href="index.html">Solid State</a></h1>
+						<h1><a href="index.html">Bluebook</a></h1>
 						<nav>
 							<a href="#menu">Menu</a>
 						</nav>
@@ -45,9 +46,9 @@
 				<!-- Banner -->
 					<section id="banner">
 						<div class="inner">
-							<div class="logo"><span class="icon fa-diamond"></span></div>
-							<h2>This is Solid State</h2>
-							<p>Another free + fully responsive site template by <a href="http://html5up.net">HTML5 UP</a></p>
+							<div class="logo"><span class="icon fa-low-vision"></span></div>
+							<h2>Bluebook</h2>
+							<p>Image Filtering Microservice developed for Echosec through UVic SENG 499</p>
 						</div>
 					</section>
 
@@ -172,12 +173,19 @@
 			</div>
 
 		<!-- Scripts -->
+			<script src="assets/js/particles.min.js"></script>
 			<script src="assets/js/skel.min.js"></script>
 			<script src="assets/js/jquery.min.js"></script>
 			<script src="assets/js/jquery.scrollex.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
 			<script src="assets/js/main.js"></script>
+
+			<script type="text/javascript">
+			particlesJS.load('particles-js', 'assets/config/particlesjs-config.json', function() {
+  				console.log('callback - particles.js config loaded');
+			});
+			</script>
 
 	</body>
 </html>
