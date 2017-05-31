@@ -2,3 +2,5 @@ webpage/.env
 webpage/node_modules/
 
 *.log
+
+project/\.ipynb_checkpoints/
