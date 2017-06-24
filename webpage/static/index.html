@@ -23,9 +23,9 @@
 				<!-- Header -->
 					<header id="header" class="alt">
 						<h1><a href="index.html">Bluebook</a></h1>
-						<nav>
+						<!--nav>
 							<a href="#menu">Menu</a>
-						</nav>
+						</nav-->
 					</header>
 
 				<!-- Menu -->
@@ -47,8 +47,10 @@
 					<section id="banner">
 						<div class="inner">
 							<div class="logo"><span class="icon fa-low-vision"></span></div>
-							<h2>Bluebook</h2>
-							<p>Image Filtering Microservice developed for Echosec through UVic SENG 499</p>
+							<h2>Bluebook Solutions</h2>
+							<p>The company behind Imagyn<br>
+								<span style="font-size: 0.7em">UVic SENG 499</span>
+							</p>
 						</div>
 					</section>
 
@@ -58,11 +60,13 @@
 						<!-- One -->
 							<section id="one" class="wrapper spotlight style1">
 								<div class="inner">
-									<a href="#" class="image"><img src="images/pic01.jpg" alt="" /></a>
+									<a href="https://echosec.net" class="image" style="border-radius: inherit;">
+										<img src="images/Echosec_Icon_Logo.svg" alt="Echosec Logo" style="border-radius: inherit;"/>
+									</a>
 									<div class="content">
-										<h2 class="major">Magna arcu feugiat</h2>
-										<p>Lorem ipsum dolor sit amet, etiam lorem adipiscing elit. Cras turpis ante, nullam sit amet turpis non, sollicitudin posuere urna. Mauris id tellus arcu. Nunc vehicula id nulla dignissim dapibus. Nullam ultrices, neque et faucibus viverra, ex nulla cursus.</p>
-										<a href="#" class="special">Learn more</a>
+										<h2 class="major">Who is Echosec?</h2>
+										<p>Echosec is a tech startup company based in Victoria. Their location-based search platform provides public safety, security, journalism, and intelligence professionals actionable knowledge based on social media and other information.</p>
+										<a href="https://echosec.net" class="special">Learn more</a>
 									</div>
 								</div>
 							</section>
@@ -70,11 +74,13 @@
 						<!-- Two -->
 							<section id="two" class="wrapper alt spotlight style2">
 								<div class="inner">
-									<a href="#" class="image"><img src="images/pic02.jpg" alt="" /></a>
+									<a href="http://web.uvic.ca/calendar2016-05/CDs/SENG/499.html" class="image" style="border-radius: inherit;">
+										<img src="images/uvic-logo.svg" alt="" style="border-radius: inherit;"/>
+									</a>
 									<div class="content">
-										<h2 class="major">Tempus adipiscing</h2>
-										<p>Lorem ipsum dolor sit amet, etiam lorem adipiscing elit. Cras turpis ante, nullam sit amet turpis non, sollicitudin posuere urna. Mauris id tellus arcu. Nunc vehicula id nulla dignissim dapibus. Nullam ultrices, neque et faucibus viverra, ex nulla cursus.</p>
-										<a href="#" class="special">Learn more</a>
+										<h2 class="major">What is UVic SENG 499?</h2>
+										<p>Also known as Design Project 2, SENG 499 is a course required to be taken by Software Engineering undergraduate students. The course requires students to pursue an independent project under the supervision of a faculty member, to prepare a written report and present a seminar describing the work. Projects will normally focus on large software systems, and collaboration with an industrial sponsor is encouraged.</p>
+										<a href="http://www.ece.uvic.ca/~elec499/" class="special">Learn more</a>
 									</div>
 								</div>
 							</section>
@@ -82,10 +88,14 @@
 						<!-- Three -->
 							<section id="three" class="wrapper spotlight style3">
 								<div class="inner">
-									<a href="#" class="image"><img src="images/pic03.jpg" alt="" /></a>
+									<a href="#" class="image" style="border-radius: inherit; text-align: center;">
+										<span class="icon fa-database" style="font-size: 10em;">
+									</a>
 									<div class="content">
-										<h2 class="major">Nullam dignissim</h2>
-										<p>Lorem ipsum dolor sit amet, etiam lorem adipiscing elit. Cras turpis ante, nullam sit amet turpis non, sollicitudin posuere urna. Mauris id tellus arcu. Nunc vehicula id nulla dignissim dapibus. Nullam ultrices, neque et faucibus viverra, ex nulla cursus.</p>
+										<h2 class="major">What are we building?</h2>
+										<p>We've chosen to build Echosec a framework to help them automate the process of assembling and augmenting training and testing data for the neural applications they employ as part
+										of their product. Echosec uses machine learning to detect items in photos they encounter while processing a client's search request. Currently these machine learning applications are
+										trained on data which is collected and annotated by hand. Our project, <b>Imagyn</b> is a framework which automatically collects annotated images for training a neural network, trains the network, informs you of the overall progress, and hands back an image recognizer ready to identify what you're requested. </p>
 										<a href="#" class="special">Learn more</a>
 									</div>
 								</div>
@@ -94,37 +104,38 @@
 						<!-- Four -->
 							<section id="four" class="wrapper alt style1">
 								<div class="inner">
-									<h2 class="major">Vitae phasellus</h2>
-									<p>Cras mattis ante fermentum, malesuada neque vitae, eleifend erat. Phasellus non pulvinar erat. Fusce tincidunt, nisl eget mattis egestas, purus ipsum consequat orci, sit amet lobortis lorem lacus in tellus. Sed ac elementum arcu. Quisque placerat auctor laoreet.</p>
+									<h2 class="major">Imagyn</h2>
+									<p>Imagyn has several parts, here's a little breakdown about each one of them.</p>
 									<section class="features">
 										<article>
 											<a href="#" class="image"><img src="images/pic04.jpg" alt="" /></a>
-											<h3 class="major">Sed feugiat lorem</h3>
-											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
-											<a href="#" class="special">Learn more</a>
+											<h3 class="major">Image Retreival</h3>
+											<p>We use ImageNet as our source of annotated images. ImageNet is based off of a library called WordNet: a "large lexical database of English. Nouns, verbs, adjectives and adverbs are grouped into sets of cognitive synonyms (synsets), each expressing a distinct concept". ImageNet simply maps images to each synset in WordNet. We then retreive the images from ImageNet
+											's API. </p>
+											<a href="http://image-net.org/" class="special">Learn more</a>
 										</article>
 										<article>
 											<a href="#" class="image"><img src="images/pic05.jpg" alt="" /></a>
-											<h3 class="major">Nisl placerat</h3>
-											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
-											<a href="#" class="special">Learn more</a>
+											<h3 class="major">Image Synthesis</h3>
+											<p>Using various software packages, we modifiy the images that are collected by applying various transformations. Transformations include adding noise, rotating, skewing, and carving to name a few. Transformations are applied to help the neural network that will train on these images recognize occurances of them when they're not represented as nearly as in other training data. </p>
+											<!--a href="#" class="special">Learn more</a-->
 										</article>
 										<article>
 											<a href="#" class="image"><img src="images/pic06.jpg" alt="" /></a>
-											<h3 class="major">Ante fermentum</h3>
-											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
-											<a href="#" class="special">Learn more</a>
+											<h3 class="major">Model Training</h3>
+											<p>Coming soon...</p>
+											<a href="https://www.tensorflow.org/" class="special">Learn more</a>
 										</article>
 										<article>
 											<a href="#" class="image"><img src="images/pic07.jpg" alt="" /></a>
-											<h3 class="major">Fusce consequat</h3>
-											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
-											<a href="#" class="special">Learn more</a>
+											<h3 class="major">Pipelining and UI</h3>
+											<p>Imagyn uses Spotify's Luigi to manage all of the tasks that are required to run though the process of assembling a new dataset. Luigi helps us configure and address issues typically associated with long-running batch processes. </p>
+											<a href="https://github.com/spotify/luigi" class="special">Learn more</a>
 										</article>
 									</section>
-									<ul class="actions">
+									<!--ul class="actions">
 										<li><a href="#" class="button">Browse All</a></li>
-									</ul>
+									</ul-->
 								</div>
 							</section>
 
@@ -134,38 +145,39 @@
 					<section id="footer">
 						<div class="inner">
 							<h2 class="major">Get in touch</h2>
-							<p>Cras mattis ante fermentum, malesuada neque vitae, eleifend erat. Phasellus non pulvinar erat. Fusce tincidunt, nisl eget mattis egestas, purus ipsum consequat orci, sit amet lobortis lorem lacus in tellus. Sed ac elementum arcu. Quisque placerat auctor laoreet.</p>
-							<form method="post" action="#">
+							<p>If you would like to get in touch with us by email for any reason, fill out the form below!</p>
+							<form id="gform" method="post" action="https://script.google.com/macros/s/AKfycbx4ZZL1Rwvck6iyStArJdjtXiOm0jmoijcZJMH0_HcOkChggns/exec">
 								<div class="field">
-									<label for="name">Name</label>
-									<input type="text" name="name" id="name" />
+									<label for="Name">Name</label>
+									<input type="text" name="Name" id="Name" />
 								</div>
 								<div class="field">
-									<label for="email">Email</label>
-									<input type="email" name="email" id="email" />
+									<label for="Email">Email</label>
+									<input type="Email" name="Email" id="Email" />
 								</div>
 								<div class="field">
-									<label for="message">Message</label>
-									<textarea name="message" id="message" rows="4"></textarea>
+									<label for="Message">Message</label>
+									<textarea name="Message" id="Message" rows="4"></textarea>
 								</div>
 								<ul class="actions">
 									<li><input type="submit" value="Send Message" /></li>
 								</ul>
 							</form>
+							<div style="display: none;" id="thankyou_message">
+								<h2>Thanks!</h2>
+								<p>We'll get back to you as soon as we can.</p>
+							</div>
 							<ul class="contact">
 								<li class="fa-home">
-									Untitled Inc<br />
-									1234 Somewhere Road Suite #2894<br />
-									Nashville, TN 00000-0000
+									Group 21 - SENG499 - Fall 2017 - UVic <br />
+									3800 Finnerty Rd, <br />
+									Victoria, BC V8P 5C2
 								</li>
-								<li class="fa-phone">(000) 000-0000</li>
-								<li class="fa-envelope"><a href="#">information@untitled.tld</a></li>
-								<li class="fa-twitter"><a href="#">twitter.com/untitled-tld</a></li>
-								<li class="fa-facebook"><a href="#">facebook.com/untitled-tld</a></li>
-								<li class="fa-instagram"><a href="#">instagram.com/untitled-tld</a></li>
+								<li class="fa-github"><a href="https://github.com/zevisert/Capstone">View on github (Private Access)</a></li>
+								<li class="fa-link"><a href="https://echosec.net">Visit Echosec.net</a></li>
 							</ul>
 							<ul class="copyright">
-								<li>&copy; Untitled Inc. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+								<li>&copy; Bluebook Solutions. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
 							</ul>
 						</div>
 					</section>
@@ -186,6 +198,8 @@
   				console.log('callback - particles.js config loaded');
 			});
 			</script>
+
+			<script type="text/javascript" src="assets/js/form-submission-handler.js"></script>
 
 	</body>
 </html>
