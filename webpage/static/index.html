@@ -13,6 +13,7 @@
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<script src='https://www.google.com/recaptcha/api.js'></script>
 	</head>
 	<body>
 		<div id="particles-js" style="position: fixed; width: 100%; height: 100%; z-index: -1;"></div>
@@ -146,7 +147,7 @@
 						<div class="inner">
 							<h2 class="major">Get in touch</h2>
 							<p>If you would like to get in touch with us by email for any reason, fill out the form below!</p>
-							<form id="gform" method="post" action="https://script.google.com/macros/s/AKfycbx4ZZL1Rwvck6iyStArJdjtXiOm0jmoijcZJMH0_HcOkChggns/exec">
+							<form id="gform">
 								<div class="field">
 									<label for="Name">Name</label>
 									<input type="text" name="Name" id="Name" />
@@ -154,13 +155,19 @@
 								<div class="field">
 									<label for="Email">Email</label>
 									<input type="Email" name="Email" id="Email" />
+									<span id="email-invalid" style="display: none">Email is invalid</span>
 								</div>
 								<div class="field">
 									<label for="Message">Message</label>
 									<textarea name="Message" id="Message" rows="4"></textarea>
 								</div>
 								<ul class="actions">
-									<li><input type="submit" value="Send Message" /></li>
+									<div id='recaptcha' class="g-recaptcha"
+										data-sitekey="6Leb6ycUAAAAAJvg0kiv-mWRHW_RsT2FMQ66f0x2"
+										data-callback="handleFormSubmit"
+										data-size='invisible'>
+									</div>
+									<button id="submit">Submit</button>
 								</ul>
 							</form>
 							<div style="display: none;" id="thankyou_message">
