@@ -39,7 +39,6 @@ function getFormData() {
       }
     }
   });
-  console.log(data);
   return data;
 }
 
@@ -52,10 +51,16 @@ function handleFormSubmit(token) {  // handles form submit without any jquery
   // xhr.withCredentials = true;
   xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.onreadystatechange = function() {
-    console.log(xhr.status, xhr.statusText);
-    console.log(xhr.responseText);
-    document.getElementById('gform').style.display = 'none'; // hide form
-    document.getElementById('thankyou_message').style.display = 'block';
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+      if (JSON.parse(xhr.responseText).result == true){
+        document.getElementById('gform').style.display = 'none'; // hide form
+        document.getElementById('thankyou_message').style.display = 'block';
+      } else {
+        document.getElementById('recaptcha-failed').style.display = 'inline-block';
+        grecaptcha.reset();
+      }
+    }
+
     return;
   };
 
