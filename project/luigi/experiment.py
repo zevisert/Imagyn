@@ -13,26 +13,305 @@ import math
 import random
 import luigi
 import ntpath
+import requests
+import random
+import urllib.request
+from socket import gaierror
+from IPython.display import Image
+import datetime
+import time
+import json
 
-class SynthesizeTask(luigi.Task):
+# Download wordnet corpus using nltk
+from nltk import download
+
+# Import the wordnet from nltk corpus
+from nltk.corpus import wordnet as wn
+
+class RunAll(luigi.WrapperTask):
+    keyword = luigi.Parameter()
+    imgCount = luigi.IntParameter() 
+    exact = luigi.IntParameter()
+    unrelated = luigi.IntParameter()
+    similar = luigi.IntParameter()
+
+    CACHED_REQUIRES = []
+
+    def cached_requires(self):
+        #https://github.com/spotify/luigi/issues/1552
+        # Only report on the tasks that were originally available on the first call to `requires()`
+        # A `requires()` method will need to append required tasks to self.CACHED_REQUIRES
+        # before yielding or returning them. This is backwards compatible for WrapperTasks that
+        # have not implemented this yet (the `or` below).
+        #
+        # https://luigi.readthedocs.io/en/stable/api/luigi.task.html#luigi.task.WrapperTask.complete
+        return self.CACHED_REQUIRES or self.requires()
+
+    def complete(self):
+        return all(r.complete() for r in self.cached_requires())
+
     def requires(self):
-        return [DownloadTask()]
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%m-%d-%Y_%H:%M:%S')
+        req = SynthesizeExactTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=st)
+        self.CACHED_REQUIRES.append(req)
+        yield req
+
+    def output(self):
+        return luigi.LocalTarget("{}.txt".format(self.time))
+ 
+    def run(self):
+        with self.output().open('w') as f:
+            f.write("done")
+
+
+class SynsetTask(luigi.Task):
+    keyword = luigi.Parameter()
+    imgCount = luigi.IntParameter() 
+    exact = luigi.IntParameter()
+    unrelated = luigi.IntParameter()
+    similar = luigi.IntParameter()
+    time = luigi.Parameter()
+    synsets = None
+    API = {
+        'allsynsets': "http://image-net.org/api/text/imagenet.synset.obtain_synset_list",
+        'wordsfor': "http://image-net.org/api/text/wordnet.synset.getwords?wnid={}",
+        'urlsfor': "http://image-net.org/api/text/imagenet.synset.geturls?wnid={}",
+        'hyponymfor': "http://image-net.org/api/text/wordnet.structure.hyponym?wnid={}",
+    }
+
+
+    def requires(self):
+        return []
  
     def output(self):
-        return luigi.LocalTarget("synthesize.txt")
+        return luigi.LocalTarget("synset{}.txt".format(self.time))
+ 
+    def run(self):
+
+        download("wordnet")
+
+        self.synsets = requests.get(self.API['allsynsets']).content.decode().splitlines()
+
+        if (self.unrelated + self.similar + self.exact != 100):
+            print("Must add up to less than or equal to 100%")
+
+
+        # ## 2. Obtain Synset ID
+        # Hyponym: A child of the synset  
+        # Hypernym: The parent of the synset
+
+        # In[4]:
+
+        offset = next(iter(wn.synsets(self.keyword, pos=wn.NOUN)), None).offset()
+        synsetId = "n{}".format(str(offset).zfill(8))
+        synset = wn.synset("{}.n.01".format(self.keyword))
+        print("{} : {} : {}".format(self.keyword, synset, synsetId))
+
+        synInImagenet = synsetId in self.synsets
+        print("In imagenet? {}".format(synInImagenet))
+
+
+        # ## 3. Obtain Synset Parent
+
+        # In[5]:
+
+
+        parent = random.choice(synset.hypernyms())
+        print(parent)
+
+        # ## 4. Obtain Siblings of Synset
+
+        # In[6]:
+
+        siblings = []
+        siblingCount = 0
+        for sibling in parent.hyponyms():
+            if siblingCount == 5:
+                break
+            if sibling != synset and self.validSynset(sibling):
+                siblings.insert(siblingCount, sibling)
+                siblingCount += 1
+
+        for sibling in siblings:
+            print(sibling)
+
+        # Get the matching grandparents in
+        # order to ensure unrelated synsets
+        matchGrandparents = self.getGrandparents(synset)
+
+        randoms = []
+        randomCount = 0
+
+        while (randomCount < 5):
+            while True:
+                try:
+                    randomSynsetId = random.choice(self.synsets)
+                    randomSynsetName = random.choice(requests.get(self.API["wordsfor"].format(randomSynsetId)).content.decode().splitlines())
+                    randomSynset = wn.synset("{}.n.01".format(randomSynsetName))
+                    
+                    # Get grandparents of random synset
+                    randomGrandparents = self.getGrandparents(randomSynset)
+                        
+                    # Ensure valid synset and that it is truely unrelated
+                    if (self.validSynset(randomSynset) and not bool(set(matchGrandparents) & set(randomGrandparents))):
+                        randoms.insert(randomCount, randomSynset)
+                        randomCount += 1
+                        break
+                except:
+                    print ("{} is not a noun, try again.".format(randomSynsetName))
+                    
+        for rand in randoms:  
+            print(rand)
+
+        print("Synset:")
+        print("-------")
+        print("{} Id('{}')\n".format(synset, synsetId))
+
+        print("Siblings:")
+        print("-------")
+        for sibling in siblings:
+            print("{} Id('{}')\n".format(sibling, self.getSynsetId(sibling)))
+
+        print("Random:")
+        print("-------")
+        for rand in randoms:
+            print("{} Id('{}')\n".format(rand, self.getSynsetId(rand)))
+
+        with self.output().open('w') as out_file:
+            out_file.write(synsetId)
+
+    def getGrandparents(self, syn):
+        grandparents = []
+        for parent in syn.hypernyms():
+            grandparents.extend(parent.hypernyms())
+        return grandparents
+
+    def getSynsetId(self, synset):
+        return "n{}".format(str(synset.offset()).zfill(8))
+
+    def validSynset(self, synset):
+        synId = self.getSynsetId(synset)
+        return synId in self.synsets
+
+class DownloadExactTask(luigi.Task):
+    keyword = luigi.Parameter()
+    imgCount = luigi.IntParameter() 
+    exact = luigi.IntParameter()
+    unrelated = luigi.IntParameter()
+    similar = luigi.IntParameter()
+    time = luigi.Parameter()
+
+    def requires(self):
+        return [SynsetTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.time)]
+ 
+    def output(self):
+        return luigi.LocalTarget("exact{}.txt".format(self.time))
+ 
+    def run(self):
+        with self.input()[0].open() as fin, self.output().open('w') as fout:
+            for line in fin:
+                self.exact = (int)(self.imgCount * (self.exact / 100))
+                     
+                # Get exact images
+                image_handler = ImageHandler()
+                downloaded_files = image_handler.getImages(self.exact, "Exact", line.strip())
+            for f in downloaded_files:
+                fout.write(f + "\n")
+
+
+"""
+class DownloadSimilarTask(luigi.Task):
+    imgCount = luigi.IntParameter() 
+    similar = luigi.IntParameter()
+
+    def requires(self):
+        return []
+ 
+    def output(self):
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%m-%d-%Y_%H:%M:%S')
+        return luigi.LocalTarget("similar{}.txt".format(st))
+ 
+    def run(self):
+        similar = (int)(self.imgCount * (self.similar / 100))
+             
+        # Get similar images
+        self.getImagesMultipleSynsets(similar, "Similar", siblings)
+
+    def getImagesMultipleSynsets(self, count, imageType, passedSynsets):
+        imagesRetrieved = 0
+
+        # If less than 0 then just use first synset
+        calculatedCount = (int)(count / len(passedSynsets))
+        if (calculatedCount == 0):
+            getImages(count, imageType, getSynsetId(passedSynsets[0]), imagesRetrieved)
+        else:
+            for syn in passedSynsets:
+                getImages(calculatedCount, imageType, getSynsetId(syn), imagesRetrieved)
+                imagesRetrieved += calculatedCount
+
+class DownloadUnrelatedTask(luigi.Task):
+    imgCount = luigi.IntParameter() 
+    unrelated = luigi.IntParameter()
+
+    def requires(self):
+        return []
+ 
+    def output(self):
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%m-%d-%Y_%H:%M:%S')
+        return luigi.LocalTarget("similar{}.txt".format(st))
+ 
+    def run(self):
+        self.unrelated = (int)(self.imgCount * (self.unrelated / 100))
+             
+        # Get unrelated images
+        getImagesMultipleSynsets(unrelated, "Unrelated", randoms)
+
+
+    def getImagesMultipleSynsets(self, count, imageType, passedSynsets):
+        imagesRetrieved = 0
+
+        # If less than 0 then just use first synset
+        calculatedCount = (int)(count / len(passedSynsets))
+        if (calculatedCount == 0):
+            getImages(count, imageType, getSynsetId(passedSynsets[0]), imagesRetrieved)
+        else:
+            for syn in passedSynsets:
+                getImages(calculatedCount, imageType, getSynsetId(syn), imagesRetrieved)
+                imagesRetrieved += calculatedCount
+"""
+
+###################################################################################################
+
+class SynthesizeExactTask(luigi.Task):
+    keyword = luigi.Parameter()
+    imgCount = luigi.IntParameter() 
+    exact = luigi.IntParameter()
+    unrelated = luigi.IntParameter()
+    similar = luigi.IntParameter()
+    time = luigi.Parameter()
+
+    def requires(self):
+        return [DownloadExactTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.time)]
+ 
+    def output(self):
+        return luigi.LocalTarget("synthesize_exact{}.txt".format(self.time))
  
     def run(self):
         with self.input()[0].open('r') as f:
             for line in f:
-                # Sets plugin for skimage, using PIL to keep read in image formats the same for arrays
-                try: 
+                try:
                     self.randomizer(line.rstrip())
 
                 except Exception as e:
                     print(e)
                     print("Provide a better image path...")
 
-    # IO Helper Functions
+        with self.output().open('w') as fout:
+            fout.write("done")
+
     def get_image_name(self, image_path):
         head, tail = ntpath.split(image_path)
         file_name, extension = tail.split(".")
@@ -311,25 +590,60 @@ class SynthesizeTask(luigi.Task):
             file_name = "./SynthesizedImages/new_" + self.get_image_name(image_path) +"_" +str(count) + ".jpg"
             imgcpy.save(file_name, "JPEG")
 
-class DownloadTask(luigi.Task):
-    def requires(self):
-        return []
- 
-    def output(self):
-        return luigi.LocalTarget("images_to_synthesize.txt")
- 
-    def run(self):
-        with self.output().open('w') as f:
-            for i in range(1, 2):
-                f.write("/home/jose/Downloads/spider.jpg\n")
-"""
-class LotsOTasks(luigi.WrapperTask):
 
-    def requires(self):
-        for k in range(4):
-            yield SynthesizeTask()
-"""
+class ImageHandler:
+    def __init__(self):
+        self.API = {
+            'allsynsets': "http://image-net.org/api/text/imagenet.synset.obtain_synset_list",
+            'wordsfor': "http://image-net.org/api/text/wordnet.synset.getwords?wnid={}",
+            'urlsfor': "http://image-net.org/api/text/imagenet.synset.geturls?wnid={}",
+            'hyponymfor': "http://image-net.org/api/text/wordnet.structure.hyponym?wnid={}",
+        }
 
+    def getImages(self, count, imageType, passedSynset, retrieved=0):
+        print("count:{} imageType:{} passedSynset:{}".format(count, imageType, passedSynset))
+        print(self)
+        urls = self.getUrls(passedSynset)
+
+        errorOffset = 0
+        localRetrieved = 0
+        downloaded_files = []
+        f = ""
+        while (localRetrieved < count):
+            while True:
+                try: 
+                    f = "./CollectedImages/{}/img{}.jpg".format(imageType, localRetrieved + retrieved)
+                    urllib.request.urlretrieve(urls[localRetrieved + errorOffset], f)
+                    print(f)
+                    localRetrieved += 1
+                    
+                    break
+                except IndexError:
+                    break
+                except (urllib.error.HTTPError, urllib.error.URLError):
+                    errorOffset += 1
+
+            downloaded_files.append(f)
+        return downloaded_files
+
+    def getUrls(self, sysnetId):
+        request = requests.get(self.API['urlsfor'].format(sysnetId))
+        urls = request.content.decode().splitlines()
+        del request
+        return urls
+
+    def getImagesMultipleSynsets(self, count, imageType, passedSynsets):
+            imagesRetrieved = 0
+
+            # If less than 0 then just use first synset
+            calculatedCount = (int)(count / len(passedSynsets))
+            if (calculatedCount == 0):
+                getImages(count, imageType, getSynsetId(passedSynsets[0]), imagesRetrieved)
+            else:
+                for syn in passedSynsets:
+                    getImages(calculatedCount, imageType, getSynsetId(syn), imagesRetrieved)
+                    imagesRetrieved += calculatedCount
+    
 
 if __name__ == '__main__':
     luigi.run()
