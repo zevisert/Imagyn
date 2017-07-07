@@ -96,17 +96,16 @@ while (u + s + e != 100):
 
 offset = next(iter(wn.synsets(keyword, pos=wn.NOUN)), None).offset()
 synsetId = "n{}".format(str(offset).zfill(8))
-synset = wn.synset("{}.n.01".format(keyword))
-print("{} : {} : {}".format(keyword, synset, synsetId))
 
 synInImagenet = synsetId in synsets
 print("In imagenet? {}".format(synInImagenet))
 
+synset = wn.synset("{}.n.01".format(keyword))
+print("{} : {} : {}".format(keyword, synset, synsetId))
 
 # ## 3. Obtain Synset Parent
 
 # In[5]:
-
 
 parent = random.choice(synset.hypernyms())
 print(parent)
