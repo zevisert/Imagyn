@@ -1,0 +1,1 @@
+# Build synset modeling functions or classes here, fetch synsets, check wordnet for availibility etc
