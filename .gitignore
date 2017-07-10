@@ -1,6 +1,13 @@
-webpage/.env
+webpage/\.env
 webpage/node_modules/
 
-*.log
-
+project/multidownloaded/
+project/SynthesizedImages/
+project/luigi/SynthesizedImages/
 project/\.ipynb_checkpoints/
+project/\.idea/
+
+*.log
+*.jpg
+*.png
+*.jpeg
