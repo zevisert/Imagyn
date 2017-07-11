@@ -34,7 +34,7 @@ class SynsetHelper:
                 siblingCount += 1
         return siblings
 
-    def getUnrelatedSynsets():
+    def getUnrelatedSynsets(self, synset):
         # Get the matching grandparents in
         # order to ensure unrelated synsets
         matchGrandparents = self.getGrandparents(synset)
@@ -44,8 +44,8 @@ class SynsetHelper:
         while (randomCount < 5):
             while True:
                 try:
-                    randomSynsetId = random.choice(synsets)
-                    randomSynsetName = random.choice(requests.get(API["wordsfor"].format(randomSynsetId)).content.decode().splitlines())
+                    randomSynsetId = random.choice(self.synsets)
+                    randomSynsetName = random.choice(requests.get(self.API["wordsfor"].format(randomSynsetId)).content.decode().splitlines())
                     randomSynset = wn.synset("{}.n.01".format(randomSynsetName))
                     
                     # Get grandparents of random synset

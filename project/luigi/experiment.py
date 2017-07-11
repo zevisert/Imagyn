@@ -49,10 +49,13 @@ class RunAll(luigi.WrapperTask):
         
         req1 = SynthesizeSimilarTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.st)
         req2 = SynthesizeExactTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.st)
+        req3 = SynthesizeUnrelatedTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.st)
         self.CACHED_REQUIRES.append(req1)
         self.CACHED_REQUIRES.append(req2)
+        self.CACHED_REQUIRES.append(req3)
         yield req1
         yield req2
+        yield req3
 
     def output(self):
         return luigi.LocalTarget("{}.txt".format(self.st)) 
@@ -116,6 +119,34 @@ class DownloadSimilarTask(luigi.Task):
             for line in downloaded_files:
                 fout.write(line + "\n")
 
+class DownloadUnrelatedTask(luigi.Task):
+    keyword = luigi.Parameter()
+    imgCount = luigi.IntParameter() 
+    exact = luigi.IntParameter()
+    unrelated = luigi.IntParameter()
+    similar = luigi.IntParameter()
+    time = luigi.Parameter()
+
+    def requires(self):
+        return []
+ 
+    def output(self):
+        return luigi.LocalTarget("unrelated{}.txt".format(self.time))
+ 
+    def run(self):
+        synset_helper = SynsetHelper()
+        synset = synset_helper.getSynset(self.keyword)
+        randoms = synset_helper.getUnrelatedSynsets(synset)
+        
+        self.similar = (int)(self.imgCount * (self.unrelated / 100))
+             
+        # Get similar images
+        image_grabber = ImageGrabber()
+        downloaded_files = image_grabber.getImagesMultipleSynsets(self.unrelated, "Unrelated", randoms)
+        with self.output().open('w') as fout:
+            for line in downloaded_files:
+                fout.write(line + "\n")
+
 class SynthesizeSimilarTask(luigi.Task):
     keyword = luigi.Parameter()
     imgCount = luigi.IntParameter() 
@@ -129,6 +160,34 @@ class SynthesizeSimilarTask(luigi.Task):
  
     def output(self):
         return luigi.LocalTarget("synthesize_similar{}.txt".format(self.time))
+ 
+    def run(self):
+        with self.input()[0].open('r') as f:
+            for line in f:
+                try:
+                    synthesizer = Synthesizer()
+                    synthesizer.randomizer(line.rstrip())
+
+                except Exception as e:
+                    print(e)
+                    print("Provide a better image path...")
+
+        with self.output().open('w') as fout:
+            fout.write("done")
+
+class SynthesizeUnrelatedTask(luigi.Task):
+    keyword = luigi.Parameter()
+    imgCount = luigi.IntParameter() 
+    exact = luigi.IntParameter()
+    unrelated = luigi.IntParameter()
+    similar = luigi.IntParameter()
+    time = luigi.Parameter()
+
+    def requires(self):
+        return [DownloadUnrelatedTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.time)]
+ 
+    def output(self):
+        return luigi.LocalTarget("synthesize_unrelated{}.txt".format(self.time))
  
     def run(self):
         with self.input()[0].open('r') as f:

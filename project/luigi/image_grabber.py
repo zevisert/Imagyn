@@ -23,7 +23,7 @@ class ImageGrabber:
         while (localRetrieved < count):
             while True:
                 try: 
-                    f = "./CollectedImages/{}/img{}.jpg".format(imageType, localRetrieved + retrieved)
+                    f = ".\\CollectedImages\\{}\\img{}.jpg".format(imageType, localRetrieved + retrieved)
                     urllib.request.urlretrieve(urls[localRetrieved + errorOffset], f)
                     print(f)
                     localRetrieved += 1
