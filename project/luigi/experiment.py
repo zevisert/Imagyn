@@ -25,6 +25,7 @@ class RunAll(luigi.WrapperTask):
     exact = luigi.IntParameter()
     unrelated = luigi.IntParameter()
     similar = luigi.IntParameter()
+    st = datetime.datetime.fromtimestamp(time.time()).strftime('%m-%d-%Y_%H:%M:%S')
 
     CACHED_REQUIRES = []
 
@@ -42,23 +43,25 @@ class RunAll(luigi.WrapperTask):
         return all(r.complete() for r in self.cached_requires())
 
     def requires(self):
-        ts = time.time()
-        st = datetime.datetime.fromtimestamp(ts).strftime('%m-%d-%Y_%H:%M:%S')
-        req1 = SynthesizeExactTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=st)
-        req2 = SynthesizeSimilarTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=st)
+        if (self.unrelated + self.similar + self.exact != 100):
+            print("Must add up to 100%")
+            return
+        
+        req1 = SynthesizeSimilarTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.st)
+        req2 = SynthesizeExactTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.st)
         self.CACHED_REQUIRES.append(req1)
         self.CACHED_REQUIRES.append(req2)
         yield req1
         yield req2
 
     def output(self):
-        return luigi.LocalTarget("{}.txt".format(self.time)) #TODO: ix this
+        return luigi.LocalTarget("{}.txt".format(self.st)) 
  
     def run(self):
         with self.output().open('w') as f:
             f.write("done")
 
-class SynsetTask(luigi.Task):
+class DownloadExactTask(luigi.Task):
     keyword = luigi.Parameter()
     imgCount = luigi.IntParameter() 
     exact = luigi.IntParameter()
@@ -70,45 +73,18 @@ class SynsetTask(luigi.Task):
         return []
  
     def output(self):
-        return luigi.LocalTarget("synset{}.txt".format(self.time))
- 
-    def run(self):
-        synset_helper = SynsetHelper()
-
-        if (self.unrelated + self.similar + self.exact != 100):
-            print("Must add up to 100%")
-
-        # ## 2. Obtain Synset ID
-        # Hyponym: A child of the synset  
-        # Hypernym: The parent of the synset
-        offset = synset_helper.getOffset(self.keyword)
-        synsetId = synset_helper.createSynsetId(offset) 
-
-        with self.output().open('w') as fout:
-            fout.write(synsetId + "\n")
-
-class DownloadExactTask(luigi.Task):
-    keyword = luigi.Parameter()
-    imgCount = luigi.IntParameter() 
-    exact = luigi.IntParameter()
-    unrelated = luigi.IntParameter()
-    similar = luigi.IntParameter()
-    time = luigi.Parameter()
-
-    def requires(self):
-        return [SynsetTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.time)]
- 
-    def output(self):
         return luigi.LocalTarget("exact{}.txt".format(self.time))
  
     def run(self):
-        with self.input()[0].open() as fin, self.output().open('w') as fout:
-            for line in fin:
-                self.exact = (int)(self.imgCount * (self.exact / 100))
-                     
-                # Get exact images
-                image_grabber = ImageGrabber()
-                downloaded_files = image_grabber.getImages(self.exact, "Exact", line.strip())
+        synset_helper = SynsetHelper()
+        self.exact = (int)(self.imgCount * (self.exact / 100))
+             
+        # Get exact images
+        offset = synset_helper.getOffset(self.keyword)
+        synsetId = synset_helper.createSynsetId(offset) 
+        image_grabber = ImageGrabber()
+        downloaded_files = image_grabber.getImages(self.exact, "Exact", synsetId)
+        with self.output().open('w') as fout:
             for f in downloaded_files:
                 fout.write(f + "\n")
 
@@ -121,7 +97,7 @@ class DownloadSimilarTask(luigi.Task):
     time = luigi.Parameter()
 
     def requires(self):
-        return [SynsetTask(keyword=self.keyword, imgCount=self.imgCount, exact=self.exact, unrelated=self.unrelated, similar=self.similar, time=self.time)]
+        return []
  
     def output(self):
         return luigi.LocalTarget("similar{}.txt".format(self.time))
