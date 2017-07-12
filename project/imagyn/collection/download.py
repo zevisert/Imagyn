@@ -14,7 +14,6 @@ import random
 from itertools import repeat
 from PIL import Image, ImageChops
 
-
 from imagyn.collection import lexicon
 from imagyn.collection.utils import binary_images
 
@@ -73,7 +72,7 @@ class Download:
                 prefix = name_req.content.decode().splitlines()[0].replace(" ", "_")
 
             downloaded_files[sid] = downloader(
-                urls=random.sample(self.get_synset_urls(sid), count),
+                urls=random.sample(self.lexicon.get_synset_urls(sid), count),
                 destination=destination,
                 prefix=prefix
             )
@@ -89,30 +88,12 @@ class Download:
                     prefix = name_req.content.decode().splitlines()[0].replace(" ", "_")
 
                 downloaded_files[sid] = downloader(
-                    urls=random.sample(self.get_synset_urls(sid), count),
+                    urls=random.sample(self.lexicon.get_synset_urls(sid), count),
                     destination=destination,
                     prefix=prefix
                 )
 
         return downloaded_files
-
-    def get_synset_urls(self, sid):
-        """
-        Gets the URLs for a corresponding synset id.
-        :param sid:
-        :return:
-        """
-
-        urls = []
-        if not self.lexicon.valid_synset(sid):
-            return urls
-
-        request = requests.get(self.lexicon.API['urlsfor'].format(sid))
-
-        if request.status_code == 200:
-            urls.extend(request.content.decode().splitlines())
-
-        return urls
 
     def multidownload(self, urls: list, destination: str, prefix: str):
         """
