@@ -66,13 +66,13 @@ class Download:
         if calculated_count == 0:
             sid = self.lexicon.get_synset_id(synsets[0])
 
-            prefix = ""
-            name_req = requests.get(self.lexicon.API['wordsfor'].format(sid))
-            if name_req.status_code == 200:
-                prefix = name_req.content.decode().splitlines()[0].replace(" ", "_")
+            if len(self.lexicon.API.wordsfor(sid)) > 0:
+                prefix = self.lexicon.API.wordsfor(sid)[0].replace(" ", "_")
+            else:
+                prefix = ""
 
             downloaded_files[sid] = downloader(
-                urls=random.sample(self.lexicon.get_synset_urls(sid), count),
+                urls=random.sample(self.lexicon.API.urlsfor(sid), count),
                 destination=destination,
                 prefix=prefix
             )
@@ -82,13 +82,13 @@ class Download:
             for synset in synsets:
                 sid = self.lexicon.get_synset_id(synset)
 
-                prefix = ""
-                name_req = requests.get(self.lexicon.API['wordsfor'].format(sid))
-                if name_req.status_code == 200:
-                    prefix = name_req.content.decode().splitlines()[0].replace(" ", "_")
+                if len(self.lexicon.API.wordsfor(sid)) > 0:
+                    prefix = self.lexicon.API.wordsfor(sid)[0].replace(" ", "_")
+                else:
+                    prefix = ""
 
                 downloaded_files[sid] = downloader(
-                    urls=random.sample(self.lexicon.get_synset_urls(sid), count),
+                    urls=random.sample(self.lexicon.API.urlsfor(sid), count),
                     destination=destination,
                     prefix=prefix
                 )

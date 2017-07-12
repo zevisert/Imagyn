@@ -7,6 +7,82 @@ import random
 
 from nltk import download
 from nltk.corpus import wordnet as wn
+from nltk.corpus.reader.wordnet import Synset
+from functools import namedtuple
+
+
+class ImageNetAPI:
+    def __init__(self):
+        Cache = namedtuple('Cache', ['synsets', 'words', 'urls', 'hyponyms'])
+        self.__cache = Cache(synsets=list(), words=dict(), urls=dict(), hyponyms=dict())
+
+    @property
+    def allsynsets(self) -> list:
+        """
+        Get and cache the list of word net identifiers indexed by imagenet
+        :return: List of strings, WordNet ID's (wnid)
+        """
+        if len(self.__cache.synsets) == 0:
+            allsynsetsurl = "http://image-net.org/api/text/imagenet.synset.obtain_synset_list"
+
+            allsynsetsreq = requests.get(allsynsetsurl)
+            if allsynsetsreq.status_code == 200:
+                self.__cache.synsets.clear()
+                self.__cache.synsets.extend(allsynsetsreq.content.decode().splitlines())
+
+        return self.__cache.synsets
+
+    def wordsfor(self, wnid: str) -> list:
+        """
+        Get ImageNet's description of a synset, and cache the result
+        :param wnid: synset offset, also called wordnet id
+        :return: List of strings, words
+        """
+
+        if wnid not in self.__cache.words:
+            if wnid in self.allsynsets:
+                wordurl = "http://image-net.org/api/text/wordnet.synset.getwords?wnid={}".format(wnid)
+                wordreq = requests.get(wordurl)
+
+                if wordreq.status_code == 200:
+                    self.__cache.words[wnid] = wordreq.content.decode().splitlines()
+
+        return self.__cache.words.get(wnid, [])
+
+    def urlsfor(self, wnid: str) -> list:
+        """
+        Get image urls for a synset from ImageNet, cache the result
+        :param wnid: synset offset, also called wordnet id
+        :return: List of urls as strings
+        """
+
+        if wnid not in self.__cache.urls:
+            if wnid in self.allsynsets:
+                urlsurl = "http://image-net.org/api/text/imagenet.synset.geturls?wnid={}".format(wnid)
+                urlsreq = requests.get(urlsurl)
+
+                if urlsreq.status_code == 200:
+                    self.__cache.urls[wnid] = urlsreq.content.decode().splitlines()
+
+        return self.__cache.urls.get(wnid, [])
+
+    def hyponymfor(self, wnid: str) -> list:
+        """
+        Get hyponyms for a word as interpreted by ImageNet, cache the result
+        :param wnid: synset offset, also called wordnet id
+        :return: List of strings, hyponyms
+        """
+
+        if wnid not in self.__cache.hyponyms:
+            if wnid in self.allsynsets:
+                hyposurl = "http://image-net.org/api/text/wordnet.structure.hyponym?wnid={}".format(wnid)
+                hyposreq = requests.get(hyposurl)
+
+                if hyposreq.status_code == 200:
+                    self.__cache.hyponyms[wnid] = hyposreq.content.decode().splitlines()
+
+        return self.__cache.hyponyms.get(wnid, [])
+
 
 class SynsetLexicon:
     def __init__(self):
@@ -15,24 +91,9 @@ class SynsetLexicon:
         """
 
         download("wordnet")
-        self.API = self.get_api()
-        self.synsets = requests.get(self.API['allsynsets']).content.decode().splitlines()
-    
-    # Separate into individual functions
-    def get_api(self):
-        """
-        Gets the API as a dictionary of wordnet and imagenet.
-        """
+        self.API = ImageNetAPI()
 
-        API = {
-            'allsynsets': "http://image-net.org/api/text/imagenet.synset.obtain_synset_list",
-            'wordsfor': "http://image-net.org/api/text/wordnet.synset.getwords?wnid={}",
-            'urlsfor': "http://image-net.org/api/text/imagenet.synset.geturls?wnid={}",
-            'hyponymfor': "http://image-net.org/api/text/wordnet.structure.hyponym?wnid={}",
-        }
-        return API
-
-    def get_synset(self, keyword):
+    def get_synset(self, keyword: Synset):
         """
         Get the synset that matches the given keyword.
         :param keyword: The user provided string to obtain the synset from
@@ -40,14 +101,14 @@ class SynsetLexicon:
         """
 
         synset = wn.synset("{}.n.01".format(keyword)) 
-        if (self.valid_synset(synset)):
+        if self.valid_synset(synset):
             return synset
         else:
             # Invalid synset, it is not in WordNet.
             # Throw exception?
             pass
     
-    def get_synset_id(self, synset):
+    def get_synset_id(self, synset: Synset):
         """
         Get the corresponding synset id of the synset.
         :param synset: The synset to extract the id from
@@ -57,7 +118,7 @@ class SynsetLexicon:
         sid = "n{}".format(str(synset.offset()).zfill(8))
         return sid
 
-    def valid_synset(self, synset):
+    def valid_synset(self, synset: Synset):
         """
         Determines if the synset is valid by checking to see that it is in ImageNet.
         :param synset: The synset to check for validity
@@ -65,10 +126,9 @@ class SynsetLexicon:
         """
 
         sid = self.get_synset_id(synset)
-        inImageNet = sid in self.synsets
-        return inImageNet
+        return sid in self.API.allsynsets
 
-    def get_siblings(self, synset):
+    def get_siblings(self, synset: Synset):
         """
         Returns up to five siblings of the synset.
         :param synset: The synset to obtain the siblings from
@@ -88,7 +148,7 @@ class SynsetLexicon:
         
         return siblings
 
-    def get_parent(self, synset):
+    def get_parent(self, synset: Synset):
         """
         Returns one of the parents of the synset.
         :param synset: The synset to obtain the parent from
@@ -97,7 +157,7 @@ class SynsetLexicon:
 
         return random.choice(synset.hypernyms())
 
-    def get_grandparents(self, synset):
+    def get_grandparents(self, synset: Synset):
         """
         Returns all grandparents of the synset.
         :param synset: The synset to obtain the grandparents from
@@ -111,7 +171,7 @@ class SynsetLexicon:
         
         return grandparents
 
-    def get_unrelated_synsets(self, synset):
+    def get_unrelated_synsets(self, synset: Synset):
         """
         Gets five unrelated synsets.
         :param synset: The synset to compare with
@@ -123,49 +183,23 @@ class SynsetLexicon:
 
         unrelatedSynsets = []
         unrelatedCount = 0
-
-        # Loop until five unrelated synsets are obtained
-        while (unrelatedCount < 5):
+        while unrelatedCount < 5:
             while True:
                 try:
-                    unrelatedSynsetId = random.choice(self.synsets)
-                    unrelatedSynsetName = random.choice(requests.get(self.API["wordsfor"].format(unrelatedSynsetId)).content.decode().splitlines())
+                    unrelatedSynsetId = random.choice(self.API.allsynsets)
+                    unrelatedSynsetName = random.choice(self.API.wordsfor(unrelatedSynsetId))
                     unrelatedSynset = wn.synset("{}.n.01".format(unrelatedSynsetName))
                     
                     # Get grandparents of random synset
                     unrelatedGrandparents = self.get_grandparents(unrelatedSynset)
                         
                     # Ensure valid synset and that it is truely unrelated
-                    # Get the intersection of the two grandparent sets
-                    grandparentIntersection = set(matchGrandparents) & set(unrelatedGrandparents)
-
-                    # If the synset is in ImageNet and the grandparent sets do not intersect
-                    if (self.valid_synset(unrelatedSynset) and not bool(grandparentIntersection)):
+                    if self.valid_synset(unrelatedSynset) and not bool(set(matchGrandparents) & set(unrelatedGrandparents)):
                         unrelatedSynsets.insert(unrelatedCount, unrelatedSynset)
                         unrelatedCount += 1
                         break
 
                 except:
-                    # If exception is thrown then attempt to obtain a new synset
-                    # Doesn't matter what the synset is as long as it is unrelated
-                    pass
+                    print("{} is not a noun, try again.".format(unrelatedSynsetName))
 
         return unrelatedSynsets
-
-    def get_synset_urls(self, sid):
-        """
-        Gets the URLs for a corresponding synset id.
-        :param sid: The synset id
-        :return: The URLs for the corresponding synset id
-        """
-
-        urls = []
-        if not self.valid_synset(sid):
-            return urls
-
-        request = requests.get(self.API['urlsfor'].format(sid))
-
-        if request.status_code == 200:
-            urls.extend(request.content.decode().splitlines())
-
-        return urls
