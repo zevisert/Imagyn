@@ -1,4 +1,4 @@
-"""Transform functions"""
+"""Imagyn transform functions library"""
 # A set of functions that can apply different transformations 
 # on an existing image to synthesis a new image
 

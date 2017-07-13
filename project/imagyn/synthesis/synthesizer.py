@@ -1,13 +1,16 @@
-"""Image Synthesis Module"""
+"""Image Synthesizer Module"""
 # Functions in this module provide a copies of a image
 # that has been synthesized by one of these functions
 
 import ntpath
+import os
 import random
+import sys
 
-from imagyn.synthesis import transform
+import transform
 from PIL import Image
 from skimage import io
+
 
 class Synthesizer():
     """
@@ -118,19 +121,22 @@ class Synthesizer():
                 function_num = random.randint(1,15)
                 print("Function applied: " + str(function_num))
                 imgcpy = self.transform_chooser(imgcpy, function_num)
-            
-            # FILE NAME ASSUMES WINDOWS OS...
-            file_name = ".\\SynthesizedImages\\new_" + self.get_image_name(image_path) + "_" + str(count) + ".jpg"
+            image_file_name = "new_" + self.get_image_name(image_path) + "_" + str(count) + ".jpg"
+            file_name = os.path.join("SynthesizedImages", image_file_name)
             imgcpy.save(file_name, "JPEG")
 
     def main(self):
         """ synthesis.py """
         try: 
-            image_path = "C:\\Users\\Graeme\\Desktop\\image2.jpg"
-            self.randomizer(image_path)
+            print(sys.argv)
+            if len(sys.argv) == 2:
+                image_path = sys.argv[1]
+                self.randomizer(image_path)
+            else:
+                print("Usage: synthesis.py \"filename\"")
 
         except FileNotFoundError as fnfe:
-            print("Provide a better image path..." + str(fnfe))
+            print("Provide a better image path...\n" + str(fnfe))
 
 if __name__== "__main__":
     Synthesizer().main()
