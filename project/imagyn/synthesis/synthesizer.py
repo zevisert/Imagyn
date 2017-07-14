@@ -17,22 +17,20 @@ class Synthesizer():
     Makes pretty images prettier
     """
 
-    # Randomization and Synthesis Functions
-    def transform_chooser(self, img, funcname='random'):
+    @property
+    def transformations(self):
         """
-        A dictionary of functions that can be randomly called to apply a transform\n
-        :param img: PIL Image object\n
-        :param funcname: OPTIONAL, the name of a function to apply, othewise random\n
-        :return: PIL Image object with transform applied
+        Possible transformations where second+ arguments are randomly generated
+        :return: Dict of transformations with randomized parameters
         """
-        transformations = {
+        return {
             'change_contrast': lambda img: transform.change_contrast(img, random.randint(0, 258)),
             'change_brightness': lambda img: transform.change_brightness(img, random.uniform(0, 5)),
             'flip_vertical': lambda img: transform.flip_vertical(img),
             'flip_horizontal': lambda img: transform.flip_horizontal(img),
             'flip_diagonal': lambda img: transform.flip_diagonal(img),
             'pad_image': lambda img: transform.pad_image(img, (random.randint(50, 1200), random.randint(50, 1200))),
-            'skew_image': lambda img: transform.skew_image(img, random.uniform(-1,1)),
+            'skew_image': lambda img: transform.skew_image(img, random.uniform(-1, 1)),
             'seam_carve_image': lambda img: transform.seam_carve_image(img),
             'rotate': lambda img: transform.rotate(img, random.randint(1, 359)),
             'scale': lambda img: transform.scale(img, random.uniform(1, 5)),
@@ -43,10 +41,19 @@ class Synthesizer():
             'hue_change': lambda img: transform.hue_change(img)
         }
 
-        if funcname != 'random':
-            func = transformations[funcname]
+    # Randomization and Synthesis Functions
+    def transform_chooser(self, img, funcname='random'):
+        """
+        A dictionary of functions that can be randomly called to apply a transform\n
+        :param img: PIL Image object\n
+        :param funcname: OPTIONAL, the name of a function to apply, othewise random\n
+        :return: PIL Image object with transform applied
+        """
+
+        if funcname == 'random':
+            func = random.choice(list(self.transformations.values()))
         else:
-            func = random.choice(list(transformations.values()))
+            func = self.transformations[funcname]
 
         return func(img)
 
@@ -70,20 +77,19 @@ class Synthesizer():
         # Sets plugin for skimage, using PIL to keep read in image formats the same for arrays
         io.use_plugin('pil')
         img = Image.open(image_path)
-        
-        #print("Number of images to synthesize: " + str(num_of_images))
+
         for count, images in enumerate(range(num_of_images), 1):
-            #print("Image: " + str(count))
-            imgcpy = img
             # The number of transformations that will be applied
-            num_of_operations = random.randint(1,5)
+            num_of_operations = random.randint(1, 5)
+
+            transformed = img.copy()
             for operations in range(0, num_of_operations):
                 # The transformation function to be applied
-                function_num = random.randint(1,15)
-                imgcpy = self.transform_chooser(img)
+                transformed = self.transform_chooser(transformed)
+
             image_file_name = "new_" + self.get_image_name(image_path) + "_" + str(count) + ".jpg"
             file_name = os.path.join(file_folder, image_file_name)
-            imgcpy.save(file_name, "JPEG")
+            transformed.save(file_name, "JPEG")
 
     def main(self):
         """ synthesis.py """
