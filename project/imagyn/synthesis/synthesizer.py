@@ -94,6 +94,10 @@ class Synthesizer():
                 image_path = sys.argv[1]
                 file_folder = sys.argv[2]
                 self.randomizer(image_path, file_folder)
+            elif len(sys.argv) == 2:
+                 # Pull the image from the cmd line
+                image_path = sys.argv[1]
+                self.randomizer(image_path)
             else:
                 print("Usage: synthesis.py \"filename\"")
 
