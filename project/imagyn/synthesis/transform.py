@@ -10,7 +10,6 @@ from math import tan
 from PIL import Image, ImageEnhance, ImageFilter
 from skimage import color, filters, io, transform, util
 
-
 # IO Helper Functions
 def skimage_to_pil(img):
     """
@@ -18,13 +17,19 @@ def skimage_to_pil(img):
     :param img: Skimage image object
     :return: PIL image object
     """
-    #io.imsave('cpy.jpg', img)
-    #pil_img = Image.open('cpy.jpg')
     abspath = os.path.dirname(__file__)
-    temp = tempfile.NamedTemporaryFile(dir=abspath)
-    io.save(temp.name, img)
+    #get the absolute path of the working directory
+    temp = tempfile.NamedTemporaryFile(suffix=".jpg",delete=False,dir=abspath)
+    #create a temp file to store the image
+    io.imsave(temp.name, img)
+    #save the image into the temp file
     pil_img = Image.open(temp.name)
-
+    #read the image as a PIL object
+    pil_img.load()
+    #close the file
+    temp.close()
+    #delete the file
+    os.remove(temp.name)
     return pil_img
 
 def pil_to_skimage(img):
@@ -33,13 +38,18 @@ def pil_to_skimage(img):
     :param img: PIL image object
     :return: Skimage image object
     """
-    #img.save('cpy.jpg', "JPEG")
-    #ski_img = io.imread('cpy.jpg', plugin='pil')
+    # get the absolute path of the working directory
     abspath = os.path.dirname(__file__)
-    temp = tempfile.NamedTemporaryFile(dir=abspath)
+    # create a temp file to store the image
+    temp = tempfile.NamedTemporaryFile(suffix=".jpg",delete=False,dir=abspath)
+    # save the image into the temp file
     img.save(temp.name, 'JPEG')
+    # read the image as a skimage object
     ski_img = io.imread(temp.name, plugin='pil')
-
+    # close the file
+    temp.close()
+    # delete the file
+    os.remove(temp.name)
     return ski_img
 
 # Image Synthesis Functions
