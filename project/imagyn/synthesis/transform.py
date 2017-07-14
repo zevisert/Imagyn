@@ -2,11 +2,14 @@
 # A set of functions that can apply different transformations 
 # on an existing image to synthesis a new image
 
+import os
+import tempfile
 from colorsys import hsv_to_rgb, rgb_to_hsv
 from math import tan
 
 from PIL import Image, ImageEnhance, ImageFilter
 from skimage import color, filters, io, transform, util
+
 
 # IO Helper Functions
 def skimage_to_pil(img):
@@ -15,8 +18,13 @@ def skimage_to_pil(img):
     :param img: Skimage image object
     :return: PIL image object
     """
-    io.imsave('cpy.jpg', img)
-    pil_img = Image.open('cpy.jpg')
+    #io.imsave('cpy.jpg', img)
+    #pil_img = Image.open('cpy.jpg')
+    abspath = os.path.dirname(__file__)
+    temp = tempfile.NamedTemporaryFile(dir=abspath)
+    io.save(temp.name, img)
+    pil_img = Image.open(temp.name)
+
     return pil_img
 
 def pil_to_skimage(img):
@@ -25,8 +33,13 @@ def pil_to_skimage(img):
     :param img: PIL image object
     :return: Skimage image object
     """
-    img.save('cpy.jpg', "JPEG")
-    ski_img = io.imread('cpy.jpg', plugin='pil')
+    #img.save('cpy.jpg', "JPEG")
+    #ski_img = io.imread('cpy.jpg', plugin='pil')
+    abspath = os.path.dirname(__file__)
+    temp = tempfile.NamedTemporaryFile(dir=abspath)
+    img.save(temp.name, 'JPEG')
+    ski_img = io.imread(temp.name, plugin='pil')
+
     return ski_img
 
 # Image Synthesis Functions
@@ -35,6 +48,7 @@ def change_contrast(img, level):
     """
     Change contrast, that eventually can return the negative at high enough values
     :param img: PIL image object
+    :param level: Adjust brightness (int)
     :return: PIL image object
     """
     factor = (259 * (level + 255)) / (255 * (259 - level))
@@ -47,6 +61,7 @@ def change_brightness(img, level):
     """
     Increase the brightness of an image
     :param img: PIL image object
+    :param level: Adjust brightness (int)
     :return: PIL image object
     """
     brightness = ImageEnhance.Brightness(img)
@@ -82,6 +97,7 @@ def pad_image(img, new_size):
     """
     Pad the image with a black border
     :param img: PIL image object
+    :param new_size: (width, height) image dimensions as a tuple
     :return: PIL image object
     """
     old_img = img
@@ -105,6 +121,7 @@ def skew_image(img, angle):
     """
     Skew image using some math
     :param img: PIL image object
+    :param angle: Angle in radians (function doesn't do well outside the range -1 -> 1, but still works)
     :return: PIL image object
     """
     width, height = img.size
@@ -162,6 +179,7 @@ def rotate(img, rotation_angle):
     """
     Rotate image
     :param img: PIL image object
+    :param rotation_angle: Rotate in degrees
     :return: PIL image object
     """
     try:
@@ -187,6 +205,8 @@ def crop(img, scaling_factor_x, scaling_factor_y):
     """
     Crop Image
     :param img: PIL image object
+    :param scaling_factor_x: Scale for the x axis (width)
+    :param scaling_factor_y: Scale for the y axis (height)
     :return: PIL image object
     """
     # TODO: this method still needs to be tweaked so that we dont kill the image (main obj is still visible)
