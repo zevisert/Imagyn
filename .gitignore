@@ -11,3 +11,4 @@ project/\.idea/
 *.jpg
 *.png
 *.jpeg
+*.pyc
