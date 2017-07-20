@@ -32,6 +32,7 @@ def skimage_to_pil(img):
     temp.close()
     #delete the file
     os.remove(temp.name)
+
     return pil_img
 
 def pil_to_skimage(img):
@@ -52,6 +53,7 @@ def pil_to_skimage(img):
     temp.close()
     # delete the file
     os.remove(temp.name)
+
     return ski_img
 
 # Image Synthesis Functions
@@ -77,6 +79,7 @@ def change_brightness(img, level):
     :param level: Adjust brightness (int)
     :return: PIL image object
     """
+    level = 0.3
     print("Applying change_brightness")
     brightness = ImageEnhance.Brightness(img)
     return brightness.enhance(level)
@@ -118,7 +121,7 @@ def pad_image(img, new_size):
     :return: PIL image object
     """
     print("Applying pad_image")
-    old_img = img
+    old_img = img.copy()
     old_size = old_img.size
     
     # By passing a new_size we have to consider that it may be under, 
@@ -164,35 +167,38 @@ def seam_carve(img):
     """
     print("Applying seam_carve")
     # Convert to skimage image
-    img = pil_to_skimage(img)
+    img_to_convert = img.copy()
+    img_to_convert = pil_to_skimage(img_to_convert)
     
     # Energy Map, used to determine which pixels will be removed
-    eimg = filters.sobel(color.rgb2gray(img))
-    
+    eimg = filters.sobel(color.rgb2gray(img_to_convert))
+
     # (height, width)
-    img_dimensions = img.shape
+    img_dimensions = img_to_convert.shape
     
     # Squish width if width >= height, squish height if height > width
     # Number of pixels to keep along the outer edges (5% of largest dimension)
     # Number of seams to be removed, (1 to 10% of largest dimension)
     if(img_dimensions[1] >= img_dimensions[0]):
-        mode = 'vertical'
+        mode ="horizontal"
         border = round(img_dimensions[1] * 0.05)
-        num_seams = random.randint(1, round(0.2*img_dimensions[1]))
+        num_seams = random.randint(1, round(0.1*img_dimensions[1]))
+    
     else:
-        mode = 'horizontal'
+        mode = "vertical" 
         border = round(img_dimensions[0] * 0.05)
-        num_seams = random.randint(1, round(0.2*img_dimensions[0]))
-
+        num_seams = random.randint(1, round(0.1*img_dimensions[0]))
+    
     try:
-        img = transform.seam_carve(img, eimg, mode, num_seams, border)
+        img_to_convert = transform.seam_carve(img_to_convert, eimg, mode, num_seams, border)
+    
     except Exception as e:
-        print(e)
+        print("Unable to seam_carve: " + str(e))
         
     # Convert back to PIL image
-    img = skimage_to_pil(img)
+    img_to_convert = skimage_to_pil(img_to_convert)
     
-    return img
+    return img_to_convert
 
 # Rotate image
 def rotate(img, rotation_angle):
@@ -311,6 +317,7 @@ def hue_change(img, intensity, value):
     """
     print("Applying hue_change")
     original_width, original_height = img.size
+
     # Don't apply hue change if already grayscaled.
     if(img.mode == 'L'):
         return img

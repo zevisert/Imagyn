@@ -25,8 +25,8 @@ class Synthesizer():
         :return: Dict of transformations with randomized parameters
         """
         return {
-            'change_contrast': lambda img: transform.change_contrast(img, self.build_normal_distribution(250, -150, 50, 100, True)),
-            'change_brightness': lambda img: transform.change_brightness(img, self.build_normal_distribution(3, 0, 1.5, 1)),
+            'change_contrast': lambda img: transform.change_contrast(img, self.build_normal_distribution(250, -150, 50, 75, True)),
+            'change_brightness': lambda img: transform.change_brightness(img, self.build_normal_distribution(3, 0.3, 1.75, 1)),
             'flip_vertical': lambda img: transform.flip_vertical(img),
             'flip_horizontal': lambda img: transform.flip_horizontal(img),
             'flip_diagonal': lambda img: transform.flip_diagonal(img),
@@ -92,12 +92,13 @@ class Synthesizer():
         file_name, extension = tail.split(".")
         return file_name
 
-    def randomizer(self, image_path, file_folder="SynthesizedImages", num_of_images=random.randint(1, 10)):
+    def randomizer(self, image_path, file_folder="SynthesizedImages", num_of_images=random.randint(1, 10), num_of_transforms=random.randint(1,6)):
         """
         Call this function to generate a set of random synthesized images\n
         :param image_path: File path of image to transform\n
-        :param num_of_images: OPTIONAL, the number of synthesized images\n
-        :param file_folder: OPTIONAL, File folder path (not including image file) where synthesized images are to be stored
+        :param file_folder: OPTIONAL, File folder path (not including image file) where synthesized images are to be stored\n
+        :param num_of_images: OPTIONAL, integer, the number of synthesized images\n
+        :param num_of_transforms: OPTIONAL, integer, the number of transforms to apply to each image
         """
         # Sets plugin for skimage, using PIL to keep read in image formats the same for arrays
         io.use_plugin('pil')
@@ -105,12 +106,10 @@ class Synthesizer():
 
         for count, images in enumerate(range(num_of_images), 1):
             # The number of transformations that will be applied
-            num_of_operations = random.randint(1, 6)
-            print(count, num_of_operations)
-
+            print(count, num_of_transforms)
             transformed = img.copy()
-            for operations in range(0, num_of_operations):
-                # The transformation function to be applied
+            for operations in range(0, num_of_transforms):
+                # The transformation function to be applied    
                 transformed = self.transform_chooser(transformed)
 
             # Save image to new file
@@ -118,19 +117,21 @@ class Synthesizer():
             file_name = os.path.join(file_folder, image_file_name)
             transformed.save(file_name, "JPEG")
 
-    def single_transform(self, image_path, transform_choice, file_folder="SynthesizedImages"):
+    def single_transform(self, image_path, transform_choice, file_folder="SynthesizedImages", repeat=1):
         """
         Call this function to generate a synthesized images based on requested transform\n
         :param image_path: File path of image to transform\n
         :param transform_choice: The name of the transform function to apply\n
         :param file_folder: OPTIONAL, File folder path (not including image file) where synthesized images are to be stored
+        :param repeat: OPTIONAL, integer, number of times to apply single transform
         """
         io.use_plugin('pil')
         img = Image.open(image_path)
 
         # Transform image
         transformed = img.copy()
-        transformed = self.transform_chooser(transformed, transform_choice)
+        for count in range(int(repeat)):
+            transformed = self.transform_chooser(transformed, transform_choice)
 
         # Save image to new file
         image_file_name = "synth_" + self.get_image_name(image_path) + ".jpg"
@@ -141,12 +142,13 @@ class Synthesizer():
         """ synthesis.py """
         try: 
             print(sys.argv)
-            if len(sys.argv) == 4:
+            if len(sys.argv) == 5:
                 # Pull the image, save folder, and transform from the cmd line
                 image_path = sys.argv[1]
-                tranform_choice = sys.argv[2]
-                file_folder = sys.argv[3]   
-                self.single_transform(image_path, file_folder, tranform_choice)
+                file_folder = sys.argv[2]
+                tranform_choice = sys.argv[3]
+                repeat = sys.argv[4]     
+                self.single_transform(image_path, tranform_choice, file_folder, repeat)
             elif len(sys.argv) == 3:
                 # Pull the image and save folder from the cmd line
                 image_path = sys.argv[1]
