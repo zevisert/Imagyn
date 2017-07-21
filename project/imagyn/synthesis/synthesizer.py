@@ -118,6 +118,7 @@ class Synthesizer():
 
     def multi_transform(self, image_path, transform_choices, file_folder="SynthesizedImages"):
         """
+        Perform mutilple transforms on a single image.
         :param image_path: File path of image to transform\n
         :param transform_choices: Array of transforms to apply in order\n
         :param file_folder: OPTIONAL, File folder path (not including image file) where synthesized images are to be stored
