@@ -79,7 +79,6 @@ def change_brightness(img, level):
     :param level: Adjust brightness (int)
     :return: PIL image object
     """
-    level = 0.3
     print("Applying change_brightness")
     brightness = ImageEnhance.Brightness(img)
     return brightness.enhance(level)
@@ -332,3 +331,5 @@ def hue_change(img, intensity, value):
                 r,g,b = hsv_to_rgb(h, s, v)
                 ld[x,y] = (int(r * 255.9999), int(g * 255.9999), int(b * 255.9999))
     return img
+
+
