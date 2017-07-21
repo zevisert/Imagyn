@@ -161,7 +161,6 @@ class Synthesizer():
     def main(self):
         """ synthesis.py """
         try: 
-            print(sys.argv)
             if(len(sys.argv) > 1):
 
                 if(sys.argv[1] == "-random"):
