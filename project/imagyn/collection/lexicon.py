@@ -4,8 +4,9 @@ Contains classes and functions regarding wordnet and imagenet synsets.
 
 import requests
 import random
+import os
 
-from nltk import download
+from nltk import download, data
 from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
 from functools import namedtuple
@@ -98,8 +99,11 @@ class SynsetLexicon:
         """
         Contains various synset related functions.
         """
+        try:
+            data.find(os.path.join("corpora", "wordnet"))
+        except LookupError:
+            download("wordnet")
 
-        download("wordnet")
         self.API = ImageNetAPI()
 
     def get_synset(self, keyword: str):
@@ -215,3 +219,53 @@ class SynsetLexicon:
                 unrelatedCount += 1
 
         return unrelatedSynsets
+
+    def main(self):
+        parser = argparse.ArgumentParser(description="Imagyn Lexicon")
+        group = parser.add_mutually_exclusive_group(required=True)
+
+        group.add_argument(
+            "--id",
+            type=str,
+            help="Return the id of a keyword"
+        )
+
+        group.add_argument(
+            "--siblings",
+            type=str,
+            help="Return a list of siblings of a synset id"
+        )
+
+        group.add_argument(
+            "--parent",
+            type=str,
+            help="Return a list of parents of a synset id"
+        )
+
+        group.add_argument(
+            "--grandparents",
+            type=str,
+            help="Return a list of grandparents of a synset id"
+        )
+
+        args = parser.parse_args()
+
+        if args.id:
+            synset = self.get_synset(args.id)
+            print(self.get_synset_id(synset))
+
+        elif args.siblings:
+            synset = wn.synset_from_pos_and_offset(args.siblings[0], int(args.siblings[1:]))
+            print("\n".join([word.name().split(".")[0] for word in self.get_siblings(synset)]))
+
+        elif args.parent:
+            synset = wn.synset_from_pos_and_offset(args.parent[0], int(args.parent[1:]))
+            print(self.get_parent(synset).name().split(".")[0])
+
+        elif args.grandparents:
+            synset = wn.synset_from_pos_and_offset(args.grandparents[0], int(args.grandparents[1:]))
+            print("\n".join([word.name().split(".")[0] for word in self.get_grandparents(synset)]))
+
+if __name__ == '__main__':
+    import argparse
+    SynsetLexicon().main()
