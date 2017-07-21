@@ -17,7 +17,7 @@ from PIL import Image, ImageChops
 from imagyn.collection import lexicon
 from imagyn.collection.utils import binary_images
 
-class Download:
+class Downloader:
     def __init__(self):
         """
         Contains various image download functions.
@@ -30,21 +30,24 @@ class Download:
         :param urls: list of urls to download
         :param destination: Location to store downloaded images
         :param prefix: synset id or descriptor word for urls
-        :return: Count of images downloaded successfully
+        :return: List of images downloaded successfully
         """
 
-        retrieved = 0
+        retrieved = []
+
+        if not os.path.exists(destination):
+            os.makedirs(destination, exist_ok=True)
 
         # Loop over the images to retrieve
         for url in urls:
             # Retrieve the url at the next index
-            success = self.download_single_checked(
+            filename = self.download_single_checked(
                 url=url,
                 destination=destination,
                 prefix=prefix
             )
-            if success:
-                retrieved += 1
+            if filename is not None:
+                retrieved.append(filename)
 
         return retrieved
     
@@ -55,7 +58,7 @@ class Download:
         :param synsets: List of synsets to request images from
         :param destination: Location to store the downloaded files
         :param sequential: Use sequential (single threaded) download method
-        :return: Dict of counts of images downloaded from each synset
+        :return: Dict of lists of images downloaded from each synset
         """
 
         downloaded_files = dict()
@@ -101,14 +104,19 @@ class Download:
         :param urls: list of urls to attempt to download
         :param destination: folder to put images in
         :param prefix: synset id or descriptor word of urls
-        :return: Count of images downloaded successfully
+        :return: List of images names downloaded successfully
         """
         if not os.path.exists(destination):
-            os.mkdir(destination)
+            os.makedirs(destination, exist_ok=True)
 
         with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
             # Returns number of images downloaded
-            return sum(pool.starmap(self.download_single_checked, zip(urls, repeat(destination), repeat(prefix))))
+            return list(
+                filter(
+                    lambda res: res is not None,
+                    pool.starmap(self.download_single_checked, zip(urls, repeat(destination), repeat(prefix)))
+                )
+            )
 
     def download_single_checked(self, url: str, destination: str, prefix: str):
         """
@@ -116,22 +124,23 @@ class Download:
         :param url: Url to attempt to download an image from
         :param destination: folder to store downloaded image in
         :param prefix: synset id or descriptor word for url
-        :return: boolean as success if downloaded succeeded
+        :return: Filename or None as success if downloaded succeeded
         """
         # splits to (`url+filename`, `.`, `filesuffix`)
         filetype = url.strip().rpartition('.')[2]
         keep = None
 
+        # We need a naming scheme that won't overwrite anything
+        # Option a) pass in the index with the url
+        # Option b) use a sufficiently sized random number
+        #   > Only after generating 1 billion UUIDs every second for the next 100 years,
+        #   > the prob of creating just one duplicate would be about 50%.
+        #   > The prob of one duplicate would be about 50% if every person on earth owns 600 million UUIDs.
+        file = os.path.join(destination, '{}-{}.{}'.format(prefix, uuid.uuid4(), filetype))
+
         try:
             # require either .png, .jpg, or .jpeg
             if filetype in ['png', 'jpg', 'jpeg']:
-                # We need a naming scheme that won't overwrite anything
-                # Option a) pass in the index with the url
-                # Option b) use a sufficiently sized random number
-                #   > Only after generating 1 billion UUIDs every second for the next 100 years,
-                #   > the prob of creating just one duplicate would be about 50%.
-                #   > The prob of one duplicate would be about 50% if every person on earth owns 600 million UUIDs.
-                file = os.path.join(destination, '{}-{}.{}'.format(prefix, uuid.uuid4(), filetype))
 
                 # Get the file
                 response = requests.get(url, stream=True, timeout=5)
@@ -165,4 +174,5 @@ class Download:
         finally:
             if keep is not None and not keep:
                 os.remove(file)
-            return bool(keep)  # Cast None to False
+            else:
+                return file  # Return the name of the downloaded file, otherwise implicit return None
