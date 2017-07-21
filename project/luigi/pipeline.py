@@ -34,7 +34,7 @@ class RunAll(luigi.WrapperTask):
         return all(r.complete() for r in self.cached_requires())
 
     def requires(self):
-        if (self.unrelated + self.similar + self.exact != 100):
+        if self.unrelated + self.similar + self.exact != 100:
             print("Must add up to 100%")
             return
         
