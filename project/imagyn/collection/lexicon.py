@@ -10,10 +10,18 @@ from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
 from functools import namedtuple
 
+class InvalidKeywordException(Exception):
+    """
+    Exception for a keyword that is not in WordNet.
+    """
+    def __init__(self, msg):
+        self.msg = msg
+
+# Cache class declared outside ImageNetAPI to allow pickling for multidownloader
+Cache = namedtuple('Cache', ['synsets', 'words', 'urls', 'hyponyms'])
 
 class ImageNetAPI:
     def __init__(self):
-        Cache = namedtuple('Cache', ['synsets', 'words', 'urls', 'hyponyms'])
         self.__cache = Cache(synsets=list(), words=dict(), urls=dict(), hyponyms=dict())
 
     @property
@@ -93,10 +101,11 @@ class SynsetLexicon:
         download("wordnet")
         self.API = ImageNetAPI()
 
-    def get_synset(self, keyword: Synset):
+    def get_synset(self, keyword: str):
         """
         Get the synset that matches the given keyword.
         :param keyword: The user provided string to obtain the synset from
+        :raises: InvalidKeywordException
         :return: The synset obtained from WordNet
         """
 
@@ -105,9 +114,8 @@ class SynsetLexicon:
             return synset
         else:
             # Invalid synset, it is not in WordNet.
-            # Throw exception?
-            pass
-    
+            raise InvalidKeywordException("{} is not a viable keyword in ImageNet.".format(keyword))
+
     def get_synset_id(self, synset: Synset):
         """
         Get the corresponding synset id of the synset.
@@ -184,22 +192,25 @@ class SynsetLexicon:
         unrelatedSynsets = []
         unrelatedCount = 0
         while unrelatedCount < 5:
-            while True:
-                try:
-                    unrelatedSynsetId = random.choice(self.API.allsynsets)
-                    unrelatedSynsetName = random.choice(self.API.wordsfor(unrelatedSynsetId))
-                    unrelatedSynset = wn.synset("{}.n.01".format(unrelatedSynsetName))
-                    
-                    # Get grandparents of random synset
-                    unrelatedGrandparents = self.get_grandparents(unrelatedSynset)
-                        
-                    # Ensure valid synset and that it is truely unrelated
-                    if self.valid_synset(unrelatedSynset) and not bool(set(matchGrandparents) & set(unrelatedGrandparents)):
-                        unrelatedSynsets.insert(unrelatedCount, unrelatedSynset)
-                        unrelatedCount += 1
-                        break
+            # Obtain an unrelated synset
+            unrelatedSynsetId = random.choice(self.API.allsynsets)
+            unrelatedSynsetName = random.choice(self.API.wordsfor(unrelatedSynsetId))
 
-                except:
-                    print("{} is not a noun, try again.".format(unrelatedSynsetName))
+            # Keeps attempting to obtain an actual noun      
+            try:
+                unrelatedSynset = wn.synset("{}.n.01".format(unrelatedSynsetName))
+            except:
+                # Skip to the next loop iteration to retrieve a noun
+                continue
+            
+            # Get grandparents of unrelated synset
+            unrelatedGrandparents = self.get_grandparents(unrelatedSynset)
+            
+            # Ensure valid synset and that it is truely unrelated
+            # This is done by ensuring the set intersection of the grandparent synsets is empty
+            intersection = set(matchGrandparents) & set(unrelatedGrandparents)
+            if self.valid_synset(unrelatedSynset) and not bool(intersection):
+                unrelatedSynsets.insert(unrelatedCount, unrelatedSynset)
+                unrelatedCount += 1
 
         return unrelatedSynsets

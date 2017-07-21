@@ -35,6 +35,9 @@ class Downloader:
 
         retrieved = []
 
+        if not os.path.exists(destination):
+            os.makedirs(destination, exist_ok=True)
+
         # Loop over the images to retrieve
         for url in urls:
             # Retrieve the url at the next index
@@ -104,7 +107,7 @@ class Downloader:
         :return: List of images names downloaded successfully
         """
         if not os.path.exists(destination):
-            os.mkdir(destination)
+            os.makedirs(destination, exist_ok=True)
 
         with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
             # Returns number of images downloaded
