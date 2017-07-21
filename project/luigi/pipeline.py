@@ -71,37 +71,39 @@ class DownloadImagesTask(luigi.Task):
         return luigi.LocalTarget("{}{}.txt".format(self.download_type, self.time))
  
     def run(self):
-        downloader = download. Download()
+        downloader = download. Downloader()
         synset_helper = lexicon.SynsetLexicon()
         path = os.path.join("./DownloadedImages", self.download_type)
         synsets = []
         synset = synset_helper.get_synset(self.keyword)
+        downloaded_result = None
 
         if self.download_type == "Exact":
             self.exact = (int)(self.imgCount * (self.exact / 100))
                  
             # Get exact images
             synsets.append(synset)
-            downloader.download_multiple_synsets(self.exact, synsets, path)
+            downloaded_result = downloader.download_multiple_synsets(self.exact, synsets, path)
 
         elif self.download_type == "Similar":
             self.similar = (int)(self.imgCount * (self.similar / 100))
 
             # Get similar images
             synsets.extend(synset_helper.get_siblings(synset))
-            downloader.download_multiple_synsets(self.similar, synsets, path)
+            downloaded_result = downloader.download_multiple_synsets(self.similar, synsets, path)
 
         elif self.download_type == "Unrelated":
             self.unrelated = (int)(self.imgCount * (self.unrelated / 100))
 
             # Get unrelated images
             synsets.extend(synset_helper.get_unrelated_synsets(synset))
-            downloader.download_multiple_synsets(self.unrelated, synsets, path)
+            downloaded_result = downloader.download_multiple_synsets(self.unrelated, synsets, path)
             
         with self.output().open('w') as fout:
-            for root, dirs, files in os.walk(path):
-                for f in files: 
-                    fout.write(os.path.join(path, f + "\n"))
+            for key in downloaded_result:
+                for f in downloaded_result[key]:
+                    fout.write(f + "\n")
+                    
 
 class SynthesizeExactTask(luigi.Task):
     keyword = luigi.Parameter()
