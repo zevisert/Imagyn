@@ -10,10 +10,11 @@ from nltk.corpus import wordnet as wn
 from nltk.corpus.reader.wordnet import Synset
 from functools import namedtuple
 
+# Cache class declared outside ImageNetAPI to allow pickling for multidownloader
+Cache = namedtuple('Cache', ['synsets', 'words', 'urls', 'hyponyms'])
 
 class ImageNetAPI:
     def __init__(self):
-        Cache = namedtuple('Cache', ['synsets', 'words', 'urls', 'hyponyms'])
         self.__cache = Cache(synsets=list(), words=dict(), urls=dict(), hyponyms=dict())
 
     @property
