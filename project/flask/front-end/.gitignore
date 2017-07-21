@@ -12,3 +12,6 @@ test/unit/coverage
 *.ntvs*
 *.njsproj
 *.sln
+!/**/*.png
+!/**/*.jpeg
+!/**/*.jpg
