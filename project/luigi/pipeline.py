@@ -73,27 +73,27 @@ class DownloadImagesTask(luigi.Task):
     def run(self):
         downloader = download. Downloader()
         synset_helper = lexicon.SynsetLexicon()
-        path = os.path.join("./DownloadedImages", self.download_type)
+        path = os.path.join(os.getcwd(), 'DownloadedImages', self.download_type)
         synsets = []
         synset = synset_helper.get_synset(self.keyword)
         downloaded_result = None
 
         if self.download_type == "Exact":
-            self.exact = (int)(self.imgCount * (self.exact / 100))
+            self.exact = (self.imgCount * self.exact) // 100
                  
             # Get exact images
             synsets.append(synset)
             downloaded_result = downloader.download_multiple_synsets(self.exact, synsets, path)
 
         elif self.download_type == "Similar":
-            self.similar = (int)(self.imgCount * (self.similar / 100))
+            self.similar = (self.imgCount * self.similar) // 100
 
             # Get similar images
             synsets.extend(synset_helper.get_siblings(synset))
             downloaded_result = downloader.download_multiple_synsets(self.similar, synsets, path)
 
         elif self.download_type == "Unrelated":
-            self.unrelated = (int)(self.imgCount * (self.unrelated / 100))
+            self.unrelated = (self.imgCount * self.unrelated) // 100
 
             # Get unrelated images
             synsets.extend(synset_helper.get_unrelated_synsets(synset))
