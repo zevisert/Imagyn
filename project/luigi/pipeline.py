@@ -55,7 +55,7 @@ class RunAll(luigi.WrapperTask):
         with self.output().open('w') as f:
             f.write("done")
 
-class DownloadImagesTask():
+class DownloadImagesTask(luigi.Task):
     download_type = luigi.Parameter()
     keyword = luigi.Parameter()
     imgCount = luigi.IntParameter() 
@@ -81,24 +81,24 @@ class DownloadImagesTask():
             self.exact = (int)(self.imgCount * (self.exact / 100))
                  
             # Get exact images
-            self.synsets.append(synset_helper.get_synset(self.keyword))
-            self.downloader.download_multiple_synsets(self.exact, synsets, os.path.join(self.path, ""))
+            self.synsets.append(self.synset_helper.get_synset(self.keyword))
+            self.downloader.download_multiple_synsets(self.exact, self.synsets, os.path.join(self.path, ""))
 
         elif self.download_type == "Similar":
             self.similar = (int)(self.imgCount * (self.similar / 100))
 
             # Get similar images
-            self.synset = synset_helper.get_synset(self.keyword)
-            self.synsets.extend(synset_helper.get_siblings(synset))
-            self.downloader.download_multiple_synsets(self.similar, synsets, os.path.join(self.path, ""))
+            synset = self.synset_helper.get_synset(self.keyword)
+            self.synsets.extend(self.synset_helper.get_siblings(synset))
+            self.downloader.download_multiple_synsets(self.similar, self.synsets, os.path.join(self.path, ""))
 
         elif self.download_type == "Unrelated":
             self.unrelated = (int)(self.imgCount * (self.unrelated / 100))
 
             # Get unrelated images
-            self.synset = synset_helper.get_synset(self.keyword)
-            self.synsets.extend(synset_helper.get_unrelated_synsets(synset))
-            self.downloader.download_multiple_synsets(self.unrelated, synsets, os.path.join(self.path, ""))
+            synset = self.synset_helper.get_synset(self.keyword)
+            self.synsets.extend(self.synset_helper.get_unrelated_synsets(synset))
+            self.downloader.download_multiple_synsets(self.unrelated, self.synsets, os.path.join(self.path, ""))
             
         with self.output().open('w') as fout:
             for root, dirs, files in os.walk(self.path):
