@@ -16,7 +16,7 @@ class RunAll(luigi.WrapperTask):
     exact = luigi.IntParameter()
     unrelated = luigi.IntParameter()
     similar = luigi.IntParameter()
-    st = datetime.datetime.fromtimestamp(time.time()).strftime('%m-%d-%Y_%H:%M:%S')
+    st = datetime.datetime.fromtimestamp(time.time()).strftime('%m-%d-%Y_%H_%M_%S')
 
     CACHED_REQUIRES = []
 
