@@ -160,47 +160,54 @@ class Synthesizer():
 
     def main(self):
         """ synthesis.py """
-        try: 
-            if(len(sys.argv) > 1):
 
-                if(sys.argv[1] == "-random"):
-                    if(len(sys.argv) == 4):
-                        # Pull the image and save folder from the cmd line
-                        image_path = sys.argv[2]
-                        file_folder = sys.argv[3]
-                        self.randomizer(image_path, file_folder)
-                    elif(len(sys.argv) == 3):
-                        # Pull the image from the cmd line
-                        image_path = sys.argv[2]
-                        self.randomizer(image_path)
-                    else:
-                        print("Randomizer Usage: synthesis.py - random <image_filepath> <synth_folder>") 
+        parser = argparse.ArgumentParser(description="Imagyn Image Synthesizer")
+        group = parser.add_mutually_exclusive_group(required=True)
 
-                elif(sys.argv[1] == "-single"):
-                    if(len(sys.argv) == 6):
-                        # Pull the image, save folder, and transform from the cmd line
-                        image_path = sys.argv[2]
-                        file_folder = sys.argv[3]
-                        tranform_choice = sys.argv[4]
-                        repeat = sys.argv[5]     
-                        self.single_transform(image_path, tranform_choice, file_folder, repeat)
-                    elif(len(sys.argv) == 5):
-                        # Pull the image, save folder, and transform from the cmd line
-                        image_path = sys.argv[2]
-                        file_folder = sys.argv[3]
-                        tranform_choice = sys.argv[4] 
-                        self.single_transform(image_path, tranform_choice, file_folder)
-                    else:
-                        print("Single Usage: synthesis.py <image_filepath> <synth_folder> <transform_choice>") 
-                
-                else:
-                    print("Usage: synthesis.py \"image_filepath\"") 
-                    
-        except FileNotFoundError as fnfe:
-            print("Provide a better file path...\n" + str(fnfe))
+        group.add_argument(
+            "--random", "-r",
+            action="store_true",
+            help="Randomly apply transformations to create N images"
+        )
 
-        except Exception as e:
-            print(e)
+        group.add_argument(
+            "--single", "-s",
+            nargs=1,
+            choices=self.transformations.keys(),
+            default=None,
+            help="Apply the specified transformation to the image N times"
+        )
+
+        parser.add_argument(
+            "-n", "--number",
+            type=int,
+            default=1,
+            help="Number of transformation repeats if single, or number of transformed images to create if random"
+        )
+
+        parser.add_argument(
+            "image_inputpath",
+            type=str,
+            help="Path to image to be transformed"
+        )
+
+        parser.add_argument(
+            "output_dir",
+            type=str,
+            action=isrwdir,
+            help="Output directory for synthesized images"
+        )
+
+        args = parser.parse_args()
+
+        if args.random:
+            self.randomizer(args.image_inputpath, args.output_dir, num_of_images=args.number)
+        elif args.single:
+            self.single_transform(args.image_inputpath, args.single[0], args.output_dir, repeat=args.number)
+        else:
+            parser.print_help()
 
 if __name__== "__main__":
+    import argparse
+    from imagyn.utils import isrwdir
     Synthesizer().main()

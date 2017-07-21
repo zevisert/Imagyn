@@ -176,3 +176,54 @@ class Downloader:
                 os.remove(file)
             else:
                 return file  # Return the name of the downloaded file, otherwise implicit return None
+
+    def main(self):
+        """ download.py """
+
+        parser = argparse.ArgumentParser(description="Imagyn Image Downloader")
+
+        parser.add_argument(
+            "-n", "--number",
+            type=int,
+            default=1,
+            help="Number of images to attempt to download"
+        )
+
+        parser.add_argument(
+            "keyword",
+            type=str,
+            help="Keyword to search for"
+        )
+
+        parser.add_argument(
+            "output_dir",
+            type=str,
+            action=isrwdir,
+            help="Output directory for downloaded images"
+        )
+
+        parser.add_argument(
+            "-v", "--verbosity",
+            type=int,
+            choices=[0, 1, 2],
+            default=1
+        )
+
+        args = parser.parse_args()
+
+        synset = self.lexicon.get_synset(keyword=args.keyword)
+        wnid = self.lexicon.get_synset_id(synset)
+        urls = self.lexicon.API.urlsfor(wnid)
+        urls = random.sample(urls, args.number)
+
+        result = self.multidownload(urls, destination=args.output_dir, prefix=args.keyword)
+
+        if args.verbosity == 1:
+            print("Collected {} of {} images of {}".format(len(result), args.number, args.keyword))
+        if args.verbosity > 1:
+            print("\n".join(result))
+
+if __name__== "__main__":
+    import argparse
+    from imagyn.utils import isrwdir
+    Downloader().main()
