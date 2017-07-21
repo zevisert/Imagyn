@@ -18,6 +18,7 @@ class InvalidKeywordException(Exception):
         self.msg = msg
 
 # Cache class declared outside ImageNetAPI to allow pickling for multidownloader
+
 Cache = namedtuple('Cache', ['synsets', 'words', 'urls', 'hyponyms'])
 
 class ImageNetAPI:
