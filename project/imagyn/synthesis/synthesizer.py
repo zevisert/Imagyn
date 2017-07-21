@@ -40,7 +40,7 @@ class Synthesizer():
             'soften': lambda img: transform.soften(img),
             'grayscale': lambda img: transform.grayscale(img),
             #'hard_black_and_white': lambda img: transform.hard_black_and_white(img),
-            'hue_change': lambda img: transform.hue_change(img, random.uniform(0.1,8), random.uniform(-360, 0))
+            'hue_change': lambda img: transform.hue_change(img, random.uniform(0.1,8), random.uniform(-360, 0)),
         }
 
     def build_normal_distribution(self, maximum, minimum, mean, deviation, integer=False):
@@ -106,7 +106,6 @@ class Synthesizer():
 
         for count, images in enumerate(range(num_of_images), 1):
             # The number of transformations that will be applied
-            print(count, num_of_transforms)
             transformed = img.copy()
             for operations in range(0, num_of_transforms):
                 # The transformation function to be applied    

@@ -8,7 +8,7 @@ import tempfile
 from colorsys import hsv_to_rgb, rgb_to_hsv
 from math import tan
 
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 from skimage import color, filters, io, transform, util
 
 
@@ -65,7 +65,6 @@ def change_contrast(img, level):
     :param level: Adjust brightness (int)
     :return: PIL image object
     """
-    print("Applying change_contrast")
     factor = (259 * (level + 255)) / (255 * (259 - level))
     def contrast(c):
         value = 128 + factor * (c - 128)
@@ -79,7 +78,6 @@ def change_brightness(img, level):
     :param level: Adjust brightness (int)
     :return: PIL image object
     """
-    print("Applying change_brightness")
     brightness = ImageEnhance.Brightness(img)
     return brightness.enhance(level)
 
@@ -89,7 +87,6 @@ def flip_vertical(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying flip_vertical")
     return img.transpose(Image.FLIP_LEFT_RIGHT)
 
 def flip_horizontal(img):
@@ -98,7 +95,6 @@ def flip_horizontal(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying hue_change")
     return img.transpose(Image.FLIP_TOP_BOTTOM)
 
 def flip_diagonal(img):
@@ -107,7 +103,6 @@ def flip_diagonal(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying flip_diagonal")
     imgcpy = img.transpose(Image.FLIP_TOP_BOTTOM)
     return imgcpy.transpose(Image.FLIP_LEFT_RIGHT)
 
@@ -119,7 +114,6 @@ def pad_image(img, new_size):
     :param new_size: (width, height) image dimensions as a tuple
     :return: PIL image object
     """
-    print("Applying pad_image")
     old_img = img.copy()
     old_size = old_img.size
     
@@ -144,7 +138,6 @@ def skew_image(img, angle):
     :param angle: Angle in radians (function doesn't do well outside the range -1 -> 1, but still works)
     :return: PIL image object
     """
-    print("Applying skew_image")
     width, height = img.size
     # Get the width that is to be added to the image based on the angle of skew
     xshift = tan(abs(angle)) * height
@@ -164,7 +157,6 @@ def seam_carve(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying seam_carve")
     # Convert to skimage image
     img_to_convert = img.copy()
     img_to_convert = pil_to_skimage(img_to_convert)
@@ -207,7 +199,6 @@ def rotate(img, rotation_angle):
     :param rotation_angle: Rotate in degrees
     :return: PIL image object
     """
-    print("Applying rotate")
     try:
         img_rotated = img.rotate(rotation_angle)
         return img_rotated
@@ -220,7 +211,6 @@ def scale(img, scaling_factor):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying scale")
     try:
         original_width, original_height = img.size
         img.thumbnail((original_height*scaling_factor, original_width*scaling_factor), Image.ANTIALIAS)
@@ -236,7 +226,6 @@ def crop(img, scaling_factor_x, scaling_factor_y):
     :param scaling_factor_y: Scale for the y axis (height)
     :return: PIL image object
     """
-    print("Applying crop")
     # TODO: this method still needs to be tweaked so that we dont kill the image (main obj is still visible)
     try:
         original_width, original_height = img.size
@@ -251,7 +240,6 @@ def white_noise(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying white_noise")
     # Convert to skimage image
     img = pil_to_skimage(img)
         
@@ -269,7 +257,6 @@ def sharpen(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying sharpen")
     img = img.filter(ImageFilter.SHARPEN)
     return img
 
@@ -280,7 +267,6 @@ def soften(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying soften")
     img = img.filter(ImageFilter.SMOOTH)
     return img
 
@@ -290,7 +276,6 @@ def grayscale(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying grayscale")
     return img.convert('L')
 
 def hard_black_and_white(img):
@@ -299,7 +284,6 @@ def hard_black_and_white(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    print("Applying hard_black_and_white")
     # black and white
     gray_img = img.convert('L')
     bw_img = gray_img.point(lambda x: 0 if x<128 else 255, '1')
@@ -314,7 +298,6 @@ def hue_change(img, intensity, value):
     :param value: float, the colour to hue change too on a scale from -360 to 0
     :return: PIL image object
     """
-    print("Applying hue_change")
     original_width, original_height = img.size
 
     # Don't apply hue change if already grayscaled.
@@ -331,5 +314,3 @@ def hue_change(img, intensity, value):
                 r,g,b = hsv_to_rgb(h, s, v)
                 ld[x,y] = (int(r * 255.9999), int(g * 255.9999), int(b * 255.9999))
     return img
-
-
