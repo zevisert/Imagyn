@@ -63,10 +63,6 @@ class DownloadImagesTask(luigi.Task):
     unrelated = luigi.IntParameter()
     similar = luigi.IntParameter()
     time = luigi.Parameter()
-    downloader = download. Download()
-    synset_helper = lexicon.SynsetLexicon()
-    synsets = []
-    path = ""
 
     def requires(self):
         return []
@@ -75,35 +71,37 @@ class DownloadImagesTask(luigi.Task):
         return luigi.LocalTarget("{}{}.txt".format(self.download_type, self.time))
  
     def run(self):
-        self.path = os.path.join("./DownloadedImages", self.download_type)
+        downloader = download. Download()
+        synset_helper = lexicon.SynsetLexicon()
+        path = os.path.join("./DownloadedImages", self.download_type)
+        synsets = []
+        synset = synset_helper.get_synset(self.keyword)
 
         if self.download_type == "Exact":
             self.exact = (int)(self.imgCount * (self.exact / 100))
                  
             # Get exact images
-            self.synsets.append(self.synset_helper.get_synset(self.keyword))
-            self.downloader.download_multiple_synsets(self.exact, self.synsets, os.path.join(self.path, ""))
+            synsets.append(synset)
+            downloader.download_multiple_synsets(self.exact, synsets, path)
 
         elif self.download_type == "Similar":
             self.similar = (int)(self.imgCount * (self.similar / 100))
 
             # Get similar images
-            synset = self.synset_helper.get_synset(self.keyword)
-            self.synsets.extend(self.synset_helper.get_siblings(synset))
-            self.downloader.download_multiple_synsets(self.similar, self.synsets, os.path.join(self.path, ""))
+            synsets.extend(synset_helper.get_siblings(synset))
+            downloader.download_multiple_synsets(self.similar, synsets, path)
 
         elif self.download_type == "Unrelated":
             self.unrelated = (int)(self.imgCount * (self.unrelated / 100))
 
             # Get unrelated images
-            synset = self.synset_helper.get_synset(self.keyword)
-            self.synsets.extend(self.synset_helper.get_unrelated_synsets(synset))
-            self.downloader.download_multiple_synsets(self.unrelated, self.synsets, os.path.join(self.path, ""))
+            synsets.extend(synset_helper.get_unrelated_synsets(synset))
+            downloader.download_multiple_synsets(self.unrelated, synsets, path)
             
         with self.output().open('w') as fout:
-            for root, dirs, files in os.walk(self.path):
+            for root, dirs, files in os.walk(path):
                 for f in files: 
-                    fout.write(os.path.join(self.path, f + "\n"))
+                    fout.write(os.path.join(path, f + "\n"))
 
 class SynthesizeExactTask(luigi.Task):
     keyword = luigi.Parameter()
