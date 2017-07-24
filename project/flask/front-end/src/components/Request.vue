@@ -1,11 +1,14 @@
 <template>
   <div class="request">
+    BefusedBequest
   </div>
 </template>
 
 <script>
+/*
 import _ from 'lodash'
 import axios from 'axios'
+*/
 export default {
   name: 'search',
   data () {
@@ -13,7 +16,7 @@ export default {
       query: '',
       options: []
     }
-  },
+  }
 }
 </script>
 

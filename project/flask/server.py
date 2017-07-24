@@ -11,3 +11,6 @@ def suggest_words(input_fragment):
     response = Response(json.dumps(suggestions), mimetype='application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+if __name__ == '__main__':
+    app.run()

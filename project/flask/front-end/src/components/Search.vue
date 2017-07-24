@@ -46,6 +46,10 @@ export default {
     ),
     selectOption: function (index) {
       console.log(this.options[index])
+      this.submitSearch(this.options[index])
+    },
+    submitSearch: function (searchQuery) {
+      this.$router.push('/cloud/' + searchQuery)
     }
   }
 }
