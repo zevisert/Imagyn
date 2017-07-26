@@ -169,11 +169,13 @@ class Downloader:
                                         # this is a 'image not availble' image
                                         keep = False  # True -> False :: Changed our mind..
 
-        # No except - don't care about exceptions
-        # Only care if we've come to the conclusion to keep the file or not
+        # If anything above failed we're not keeping this one
+        except:
+            keep = False
         finally:
-            if keep is not None and not keep:
-                os.remove(file)
+            if keep is None or keep is False:
+                if os.path.isfile(file):
+                    os.remove(file)
             else:
                 return file  # Return the name of the downloaded file, otherwise implicit return None
 
