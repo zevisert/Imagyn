@@ -18,35 +18,8 @@ class RunAll(luigi.WrapperTask):
     similar = luigi.IntParameter()
     st = datetime.datetime.fromtimestamp(time.time()).strftime('%m-%d-%Y_%H_%M_%S')
 
-    CACHED_REQUIRES = []
-
-    def cached_requires(self):
-        #https://github.com/spotify/luigi/issues/1552
-        # Only report on the tasks that were originally available on the first call to `requires()`
-        # A `requires()` method will need to append required tasks to self.CACHED_REQUIRES
-        # before yielding or returning them. This is backwards compatible for WrapperTasks that
-        # have not implemented this yet (the `or` below).
-        #
-        # https://luigi.readthedocs.io/en/stable/api/luigi.task.html#luigi.task.WrapperTask.complete
-        return self.CACHED_REQUIRES or self.requires()
-
-    def complete(self):
-        return all(r.complete() for r in self.cached_requires())
-
     def requires(self):
-        if self.unrelated + self.similar + self.exact != 100:
-            print("Must add up to 100%")
-            return
-        
-        req1 = SynthesizeTask(download_type = "Exact", keyword=self.keyword, imgCount=self.imgCount, num_images=self.exact, time=self.st)
-        req2 = SynthesizeTask(download_type = "Similar", keyword=self.keyword, imgCount=self.imgCount, num_images=self.similar, time=self.st)
-        req3 = SynthesizeTask(download_type = "Unrelated", keyword=self.keyword, imgCount=self.imgCount, num_images=self.unrelated, time=self.st)
-        self.CACHED_REQUIRES.append(req1)
-        self.CACHED_REQUIRES.append(req2)
-        self.CACHED_REQUIRES.append(req3)
-        yield req1
-        yield req2
-        yield req3
+        return [SynthesizeTask(download_type = "Exact", keyword=self.keyword, imgCount=self.imgCount, num_images=self.exact, time=self.st), SynthesizeTask(download_type = "Similar", keyword=self.keyword, imgCount=self.imgCount, num_images=self.similar, time=self.st), SynthesizeTask(download_type = "Unrelated", keyword=self.keyword, imgCount=self.imgCount, num_images=self.unrelated, time=self.st)]
 
     def output(self):
         return luigi.LocalTarget("output{}.txt".format(self.st)) 
