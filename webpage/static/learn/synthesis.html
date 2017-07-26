@@ -1,0 +1,182 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Bluebook - Learn More / Synthesis</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+		<script src='https://www.google.com/recaptcha/api.js'></script>
+	</head>
+	<body>
+		<div id="particles-js" style="position: fixed; width: 100%; height: 100%; z-index: -1;"></div>
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="/index.html">Bluebook</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="/index.html">Home</a></li>
+								<li><a href="/learn/index.html">Learn More</a></li>
+								<li><a href="/team.html">Team</a></li>
+								<li><a href="/contact.html">Contact</a></li>
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Learn More / Synthesis</h2>
+								<p>Make more training data by transforming existing images</p>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper style3">
+								<div class="inner">
+
+									<h3 class="major">Transformations</h3>
+									<p>Using various software packages, we modify the images that are collected by applying various transformations. Transformations include adding noise, rotating, skewing, and carving to name a few. Transformations are applied to help the neural network that will train on these images recognize occurrences of them when they're not represented as nearly as in other training data. </p>
+
+									<p>Imagyn allows you to choose the input parameters for any transformations you select, or it can abstract those away and generate input parameters for you. For example, take rotation - this transformation would take one extra parameter, the number of degrees to rotate by. You can supply this if you'd like, otherwise Imagyn will fill it for you. If you choose to let Imagyn select a parameter, it will do so smartly, knowing that a rotation of 1 degree isn't going to change anything much. Imagyn uses statistical distributions to select parameters, for rotation this is done using a normal gaussian distributions to select rotation degrees between 0-90 degrees as anything. The same principle is applied to other transformations such as brightness, contrast, and padding.</p>
+
+									<h3 class="major">Examples</h3>
+
+									<div class="row">
+										<div><span class="image left"><img src="/images/macaw-base.jpg" alt="" /></span>Using this image of a pair of Macaws found using the lexicon and download Imagyn submodules, the following section outlines the transformations currently available with Imagyn.
+										<ul style="display: flow-root">
+											<li>Contrast</li>
+											<li>Noise</li>
+											<li>Rotation</li>
+											<li>Hue Shifting</li>
+											<li>Brightness</li>
+											<li>Mirroring</li>
+											<li>Grayscale</li>
+											<li>Padding</li>
+											<li>Seam Carving</li>
+											<li>Skew</li>
+											<li>Sharpening</li>
+											<li>Softening</li>
+										</ul>
+										</div>
+									</div>
+
+									<section class="features">
+										<article>
+											<a class="image"><img src="/images/macaw-contrast.jpg" alt="" /></a>
+											<h3 class="major">Contrast</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-noise.jpg" alt="" /></a>
+											<h3 class="major">Noise</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-rotated.jpg" alt="" /></a>
+											<h3 class="major">Rotation</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-hue.jpg" alt="" /></a>
+											<h3 class="major">Hue shifting</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-brightness.jpg" alt="" /></a>
+											<h3 class="major">Brightness</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-flipped.jpg" alt="" /></a>
+											<h3 class="major">Mirroring</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-grayscale.jpg" alt="" /></a>
+											<h3 class="major">Grayscale</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-padded.jpg" alt="" /></a>
+											<h3 class="major">Padding</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-seamed.jpg" alt="" /></a>
+											<h3 class="major">Seam Carving</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-skewed.jpg" alt="" /></a>
+											<h3 class="major">Skew</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-sharpen.jpg" alt="" /></a>
+											<h3 class="major">Sharpening</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+										<article>
+											<a class="image"><img src="/images/macaw-soften.jpg" alt="" /></a>
+											<h3 class="major">Softening</h3>
+											<p>Lorem ipsum dolor sit amet, consectetur adipiscing vehicula id nulla dignissim dapibus ultrices.</p>
+										</article>
+									</section>
+
+
+									<h3 class="major">Further info</h3>
+									<ul class="actions">
+										<li><a href="https://python-pillow.org/" class="button">Python Imaging Library</a></li>
+										<li><a href="http://scikit-image.org/" class="button">Scikit Image</a></li>
+									</ul>
+
+								</div>
+							</div>
+
+					</section>
+
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/particles.min.js"></script>
+			<script src="/assets/js/skel.min.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/jquery.scrollex.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="/assets/js/main.js"></script>
+
+			<script type="text/javascript">
+			particlesJS.load('particles-js', '/assets/config/particlesjs-config.json', function() {
+  				console.log('callback - particles.js config loaded');
+			});
+			</script>
+
+			<script type="text/javascript" src="/assets/js/form-submission-handler.js"></script>
+
+	</body>
+</html>

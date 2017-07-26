@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Bluebook - Learn More / Retrieval</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+		<script src='https://www.google.com/recaptcha/api.js'></script>
+	</head>
+	<body>
+		<div id="particles-js" style="position: fixed; width: 100%; height: 100%; z-index: -1;"></div>
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="/index.html">Bluebook</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="/index.html">Home</a></li>
+								<li><a href="/learn/index.html">Learn More</a></li>
+								<li><a href="/team.html">Team</a></li>
+								<li><a href="/contact.html">Contact</a></li>
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Learn More / Retrieval</h2>
+								<p>About the image downloader and related interfaces</p>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper style3">
+								<div class="inner">
+
+									<h3 class="major">Downloading images</h3>
+									<p>We use ImageNet as our source of annotated images. ImageNet is based off of a library called WordNet: a "large lexical database of English. Nouns, verbs, adjectives and adverbs are grouped into sets of cognitive synonyms (synsets), each expressing a distinct concept". ImageNet simply maps images to each synset in WordNet. We then retrieve the images from ImageNet's API.</p>
+
+									<p>ImageNet annotates images, but doesn't make them available on their website for licensing reasons. ImageNet instead provides a list of urls from where images can be downloaded from. Training a recognizer on copyrighted images is okay, since the protected images are discarded and not republished anywhere. An issue though, is that the internet is dynamic, and a link may break if the image it tracked was removed. To overcome this, our Collections module is best-effort; take for example, the Downloader class: it tries to download as many images as it can and gracefully continues trying if an image cannot be located.</p>
+
+									<p>Some websites might still be slow to respond, so the Downloader class leverages parallelism by running the download task in multiple processes. This way we don't get completely hung-up on one slow website and are able to keep downloading the images you've requested. There's several ways to run the downloader:
+									<ul>
+										<li><p>Import the module and call it
+												<pre><code>from imagyn.collections.download import Downloader<br>Downloader().multidownload( ... )</code></pre>
+										</p></li>
+
+										<li><p>Run the downloader from the command-line
+												<pre><code>$> ./imagyn/collections/download.py &lt;keyword&gt; --number 10 &lt;output_dir&gt;</code></pre>
+										</p></li>
+									</ul>
+									</p>
+
+									<h3 class="major">Working with words and synsets</h3>
+									<p>The collections module also contains a lexicon for interaction with both WordNet and ImageNet. It provides several utility functions for working with the data sources. The common use case follows the path <b>Keyword</b> -&gt; <b>Synset</b> -&gt; <b>URLs</b>. The lexicon provides the tools to easily step through this using the following functions:
+
+									<pre><code>from imagyn.collection.lexicon import SynsetLexicon<br>lexicon = SynsetLexicon()</code></pre>
+									<ul>
+										<li><p>Keyword to Synset: <code>synset = lexicon.get_synset(&lt;keyword&gt;)</code></p></li>
+										<li><p>Synset to URLs: <code>urls = lexicon.API.urlsfor(lexicon.get_synset_id(synset))</code></p></li>
+										<li><p>Synset relatives: <ul>
+											<li><code>lexicon.get_parents(synset)</code></p></li>
+											<li><code>lexicon.get_siblings(synset)</code></p></li>
+											<li><code>lexicon.get_grandparents(synset)</code></p></li>
+										</ul>
+										</li>
+										<li><p>Confirm ImageNet has entries for a Synset: <code>lexicon.valid_synset(synset)</code></p></li>
+									</ul>
+									</p>
+
+
+									<h3 class="major">Further info</h3>
+									<ul class="actions">
+										<li><a href="http://image-net.org/" class="button">ImageNet</a></li>
+										<li><a href="https://docs.python.org/3/library/multiprocessing.html" class="button">Python Multiprocessing</a></li>
+									</ul>
+								</div>
+							</div>
+
+					</section>
+
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/particles.min.js"></script>
+			<script src="/assets/js/skel.min.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/jquery.scrollex.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="/assets/js/main.js"></script>
+
+			<script type="text/javascript">
+			particlesJS.load('particles-js', '/assets/config/particlesjs-config.json', function() {
+  				console.log('callback - particles.js config loaded');
+			});
+			</script>
+
+			<script type="text/javascript" src="/assets/js/form-submission-handler.js"></script>
+
+	</body>
+</html>

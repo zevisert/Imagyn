@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Bluebook - Learn More / Pipeline</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="/assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="/assets/css/main.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="/assets/css/ie9.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="/assets/css/ie8.css" /><![endif]-->
+		<script src='https://www.google.com/recaptcha/api.js'></script>
+	</head>
+	<body>
+		<div id="particles-js" style="position: fixed; width: 100%; height: 100%; z-index: -1;"></div>
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="/index.html">Bluebook</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="/index.html">Home</a></li>
+								<li><a href="/learn/index.html">Learn More</a></li>
+								<li><a href="/team.html">Team</a></li>
+								<li><a href="/contact.html">Contact</a></li>
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Learn More / Pipeline</h2>
+								<p>How to use imagyn and run processes in a pipeline</p>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper style3">
+								<div class="inner">
+
+									<h3 class="major">Process pipelining</h3>
+									<p>Imagyn uses Spotify's Luigi to manage all of the tasks that are required to run through the process of assembling a new dataset. Luigi helps us configure and address issues typically associated with long-running batch processes. Issues that come up are caching, monitoring, and automating. Luigi does what <i>GNU Make</i> does, but it's all implemented in python and provides support for a few of the common automation needs - reporting, repeatability, ease of documentation, and onwards.</p>
+
+									<p>A simple way to get going with Luigi is to just run the example tasks from our repository. These tasks will try to download some of images with your keyword in them, some images related but not the same as your keyword, and some completely unrelated images. After that's complete, a random selection of transformations will be applied to the images we've retrieved. You can then go ahead an begin <a href="/learn/training.html">training</a> your models to recognize the words you've asked for.</p>
+
+									<div class="box alt">
+										<div class="row uniform">
+											<div class="12u$"><span class="image fit"><img src="/images/luigi-visualizer.png" alt="Luigi task visualizer" /></span></div>
+										</div>
+									</div>
+
+									<p>To get the visualizer demo running, perform the following:<br>
+										<span style="font-size: 70%">Assuming you already have luigi installed, and your <code>PYTHONPATH</code> environment variable includes the directory where imagyn is installed)</span>
+
+										<code>$> luigid</code>
+
+										This will get the visualizer server running, the <code>luigid</code> command will be available after luigi is installed.<br>
+										Next just request to run a task:<br><br>
+
+										<code>$> python ./project/luigi/pipeline.py RunAll <br>.> --keyword toucan --imgCount 20 --exact 70 --similar 20 --unrelated 10</code>
+									</p>
+									<h3 class="major">Further info</h3>
+									<ul class="actions">
+										<li><a href="https://github.com/spotify/luigi" class="button">Spotify/Luigi on Github</a></li>
+									</ul>
+								</div>
+							</div>
+
+					</section>
+
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/assets/js/particles.min.js"></script>
+			<script src="/assets/js/skel.min.js"></script>
+			<script src="/assets/js/jquery.min.js"></script>
+			<script src="/assets/js/jquery.scrollex.min.js"></script>
+			<script src="/assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="/assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="/assets/js/main.js"></script>
+
+			<script type="text/javascript">
+			particlesJS.load('particles-js', '/assets/config/particlesjs-config.json', function() {
+  				console.log('callback - particles.js config loaded');
+			});
+			</script>
+
+			<script type="text/javascript" src="/assets/js/form-submission-handler.js"></script>
+
+	</body>
+</html>
