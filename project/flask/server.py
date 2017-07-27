@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '..')
 import json
 from tempfile import TemporaryDirectory
 from flask import Flask, Response, jsonify
