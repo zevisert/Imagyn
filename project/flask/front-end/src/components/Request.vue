@@ -106,6 +106,10 @@ export default {
             break
         }
       }, 2500)
+      axios.get('http://localhost:5000/api/transform/' + this.tmp_dir + '/' + this.query)
+      .then(response => {
+
+      })
     }
   }
 }

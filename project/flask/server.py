@@ -4,7 +4,7 @@ sys.path.insert(0, '..')
 import json
 import tarfile
 from tempfile import TemporaryDirectory
-from flask import Flask, Response, jsonify
+from flask import Flask, Response, jsonify, send_file
 from valid_words import word_list
 from imagyn.collection.lexicon import SynsetLexicon #get wnid
 from imagyn.collection.download import Downloader #get images
@@ -69,9 +69,7 @@ def transform_images(tdir, searchterm):
     with tarfile.open(realtdir + '\\' + 'training-set.tar.gz', 'w:gz') as tar:
         tar.add(img_dir)
         tar.add(realtdir + '\\not_' + searchterm)
-        return Response(tar,
-                        mimetype="application/gzip",
-                        headers={"Content-Disposition":"attachment;filename=training-set.tar.gz"})
+        return send_file(tar, mimetype="application/gzip")
 
 @app.route('/api/pretrained/apple/<url>')
 def run_pretrained_model(url):
