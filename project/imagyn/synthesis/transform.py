@@ -3,12 +3,14 @@
 # on an existing image to synthesis a new image
 
 import os
+import random
 import tempfile
 from colorsys import hsv_to_rgb, rgb_to_hsv
 from math import tan
 
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 from skimage import color, filters, io, transform, util
+
 
 # IO Helper Functions
 def skimage_to_pil(img):
@@ -30,6 +32,7 @@ def skimage_to_pil(img):
     temp.close()
     #delete the file
     os.remove(temp.name)
+
     return pil_img
 
 def pil_to_skimage(img):
@@ -50,6 +53,7 @@ def pil_to_skimage(img):
     temp.close()
     # delete the file
     os.remove(temp.name)
+
     return ski_img
 
 # Image Synthesis Functions
@@ -110,7 +114,7 @@ def pad_image(img, new_size):
     :param new_size: (width, height) image dimensions as a tuple
     :return: PIL image object
     """
-    old_img = img
+    old_img = img.copy()
     old_size = old_img.size
     
     # By passing a new_size we have to consider that it may be under, 
@@ -135,8 +139,6 @@ def skew_image(img, angle):
     :return: PIL image object
     """
     width, height = img.size
-    #print(img.size)
-    #print(angle)
     # Get the width that is to be added to the image based on the angle of skew
     xshift = tan(abs(angle)) * height
     new_width = width + int((xshift))
@@ -149,40 +151,45 @@ def skew_image(img, angle):
     
     return img
 
-def seam_carve_image(img):
+def seam_carve(img):
     """
     Seam carve image
     :param img: PIL image object
     :return: PIL image object
     """
-    
     # Convert to skimage image
-    img = pil_to_skimage(img)
+    img_to_convert = img.copy()
+    img_to_convert = pil_to_skimage(img_to_convert)
     
     # Energy Map, used to determine which pixels will be removed
-    eimg = filters.sobel(color.rgb2gray(img))
-    
-    # (Width, Height)
-    img_dimensions = img.shape
+    eimg = filters.sobel(color.rgb2gray(img_to_convert))
+
+    # (height, width)
+    img_dimensions = img_to_convert.shape
     
     # Squish width if width >= height, squish height if height > width
-    if(img_dimensions[0] >= img_dimensions[1]):
-        mode = 'vertical'
+    # Number of pixels to keep along the outer edges (5% of largest dimension)
+    # Number of seams to be removed, (1 to 10% of largest dimension)
+    if(img_dimensions[1] >= img_dimensions[0]):
+        mode ="horizontal"
+        border = round(img_dimensions[1] * 0.05)
+        num_seams = random.randint(1, round(0.1*img_dimensions[1]))
+    
     else:
-        mode = 'horizontal'
+        mode = "vertical" 
+        border = round(img_dimensions[0] * 0.05)
+        num_seams = random.randint(1, round(0.1*img_dimensions[0]))
     
-    # Number of seams to be removed, need to determine best way to randomize
-    num_seams = 15
+    try:
+        img_to_convert = transform.seam_carve(img_to_convert, eimg, mode, num_seams, border)
     
-    # Number of pixels to keep along the outer edges
-    border = 10
-    
-    img = transform.seam_carve(img, eimg, mode, num_seams, border)
-    
+    except Exception as e:
+        print("Unable to seam_carve: " + str(e))
+        
     # Convert back to PIL image
-    img = skimage_to_pil(img)
+    img_to_convert = skimage_to_pil(img_to_convert)
     
-    return img
+    return img_to_convert
 
 # Rotate image
 def rotate(img, rotation_angle):
@@ -269,7 +276,7 @@ def grayscale(img):
     :param img: PIL image object
     :return: PIL image object
     """
-    return img.convert('1')
+    return img.convert('L')
 
 def hard_black_and_white(img):
     """
@@ -283,22 +290,27 @@ def hard_black_and_white(img):
     bw_img = bw_img.convert('RGB')
     return bw_img
 
-def hue_change(img):
+def hue_change(img, intensity, value):
     """
     Change to purple/green hue
     :param img: PIL image object
+    :param intensity: float > 0.1, larger the value, the less intense and more washout
+    :param value: float, the colour to hue change too on a scale from -360 to 0
     :return: PIL image object
     """
     original_width, original_height = img.size
-    #print(str(original_width))
-    #print(str(original_height))
-    ld = img.load()
-    for y in range(original_height):
-        for x in range(original_width):
-            r,g,b = ld[x,y]
-            h,s,v = rgb_to_hsv(r/255., g/255., b/255.)
-            h = (h + -90.0/360.0) % 1.0
-            s = s**0.65
-            r,g,b = hsv_to_rgb(h, s, v)
-            ld[x,y] = (int(r * 255.9999), int(g * 255.9999), int(b * 255.9999))
+
+    # Don't apply hue change if already grayscaled.
+    if(img.mode == 'L'):
+        return img
+    else:
+        ld = img.load()
+        for y in range(original_height):
+            for x in range(original_width):
+                r,g,b = ld[x,y]
+                h,s,v = rgb_to_hsv(r/255, g/255, b/255)
+                h = (h + value/360.0) % 1.0
+                s = s**intensity
+                r,g,b = hsv_to_rgb(h, s, v)
+                ld[x,y] = (int(r * 255.9999), int(g * 255.9999), int(b * 255.9999))
     return img
