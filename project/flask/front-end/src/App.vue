@@ -27,6 +27,6 @@ html, body {
   height: 100%;
   display: flex;
   justify-content: space-around;
-  background: radial-gradient(white 50%, #CCCCCC);
+  background: radial-gradient(white 50%, #DDD);
 }
 </style>

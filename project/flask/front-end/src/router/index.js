@@ -14,9 +14,10 @@ export default new Router({
       component: Search
     },
     {
-      path: '/cloud',
+      path: '/cloud/:query',
       name: 'Cloud',
-      component: Request
+      component: Request,
+      props: true
     }
   ]
 })
