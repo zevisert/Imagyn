@@ -10,8 +10,8 @@
 <script>
 /*
 import _ from 'lodash'
-import axios from 'axios'
 */
+import axios from 'axios'
 import ICountUp from 'vue-countup-v2'
 export default {
   name: 'search',
