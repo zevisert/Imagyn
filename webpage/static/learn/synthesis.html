@@ -83,67 +83,72 @@
 										</div>
 									</div>
 
+									<h3 class="major"> </h3>
+
 									<section class="features">
-										<article>
-											<a class="image"><img src="/images/macaw-contrast.jpg" alt="" /></a>
-											<h3 class="major">Contrast</h3>
-											<p>Differing contrast helps image recognizers when the input is a photo - contrast isn't going to be the same every time for every photo.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-noise.jpg" alt="" /></a>
-											<h3 class="major">Noise</h3>
-											<p>Some image recognizers completly fail when a noise layer is added over input images, adding noise before training helps them perform better in these cases.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-rotated.jpg" alt="" /></a>
-											<h3 class="major">Rotation</h3>
-											<p>Rotation helps image recognizers learn that the object they're looking for isn't always orientated the same way.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-hue.jpg" alt="" /></a>
-											<h3 class="major">Hue shifting</h3>
-											<p>This transformation has less broad use cases, than the above, but some Instagram filters filters for example perform hue shifting on a lower scale than the image represented here.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-brightness.jpg" alt="" /></a>
-											<h3 class="major">Brightness</h3>
-											<p>Changing brightness has a similar effect as changing contrast - it usually helps guide recognizers to learn more strongly about the shape of the object than its colors.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-flipped.jpg" alt="" /></a>
-											<h3 class="major">Mirroring</h3>
-											<p>This can also be achieved with rotation. Synthesized mirroring helps in exactly the same way as rotation does. Imagyn provides horizontal, vertical, and combined "diagonal" mirroring.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-grayscale.jpg" alt="" /></a>
-											<h3 class="major">Grayscale</h3>
-											<p>Especially useful for tasks where input data comes from social media such as Instagram and Snapchat, as these platforms have embedded grayscale filters.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-padded.jpg" alt="" /></a>
-											<h3 class="major">Padding</h3>
-											<p>Most image recognition neural networks resize their images to a standard size to match the number of input neurons, effectively nullifying any gains from performing scaling operations. By padding an image a neural recognizer can learn about scale.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-seamed.jpg" alt="" /></a>
-											<h3 class="major">Seam Carving</h3>
-											<p>Seam carving removes a connected seam of pixels with the least amount of 'energy' across one dimension of an image. This operation provides the ability to scale images without scaling the subject.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-skewed.jpg" alt="" /></a>
-											<h3 class="major">Skew</h3>
-											<p>Skewing images allows the image recognizer to recognize photos of objects that were not taken front on.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-sharpen.jpg" alt="" /></a>
-											<h3 class="major">Sharpening</h3>
-											<p>Both sharpening and softening are techniques used in tandem to increase edge detection in neural recognizers.</p>
-										</article>
-										<article>
-											<a class="image"><img src="/images/macaw-soften.jpg" alt="" /></a>
-											<h3 class="major">Softening</h3>
-											<p>Softening images can be used - alongside sharpening - to coax image recognizers to learn about edges.</p>
-										</article>
+										<div class="row uniform">
+											<div class="4u">
+												<a class="image fit"><img src="/images/macaw-contrast.jpg" alt="" /></a>
+												<h3 class="major">Contrast</h3>
+												<p>Differing contrast helps image recognizers when the input is a photo - contrast isn't going to be the same every time for every photo.</p>
+											</div>
+											<div class="4u">
+												<a class="image fit"><img src="/images/macaw-noise.jpg" alt="" /></a>
+												<h3 class="major">Noise</h3>
+												<p>Some image recognizers completly fail when a noise layer is added over input images, adding noise before training helps them perform better in these cases.</p>
+											</div>
+											<div class="4u$">
+												<a class="image fit"><img src="/images/macaw-rotated.jpg" alt="" /></a>
+												<h3 class="major">Rotation</h3>
+												<p>Rotation helps image recognizers learn that the object they're looking for isn't always orientated the same way.</p>
+											</div>
+											<div class="4u">
+												<a class="image fit"><img src="/images/macaw-hue.jpg" alt="" /></a>
+												<h3 class="major">Hue shifting</h3>
+												<p>This transformation has less broad use cases, than the above, but some Instagram filters filters for example perform hue shifting on a lower scale than the image represented here.</p>
+											</div>
+											<div class="4u">
+												<a class="image fit"><img src="/images/macaw-brightness.jpg" alt="" /></a>
+												<h3 class="major">Brightness</h3>
+												<p>Changing brightness has a similar effect as changing contrast - it usually helps guide recognizers to learn more strongly about the shape of the object than its colors.</p>
+											</div>
+											<div class="4u$">
+												<a class="image fit"><img src="/images/macaw-flipped.jpg" alt="" /></a>
+												<h3 class="major">Mirroring</h3>
+												<p>This can also be achieved with rotation. Synthesized mirroring helps in exactly the same way as rotation does. Imagyn provides horizontal, vertical, and combined "diagonal" mirroring.</p>
+											</div>
+											<div class="4u">
+												<a class="image fit"><img src="/images/macaw-grayscale.jpg" alt="" /></a>
+												<h3 class="major">Grayscale</h3>
+												<p>Especially useful for tasks where input data comes from social media such as Instagram and Snapchat, as these platforms have embedded grayscale filters.</p>
+											</div>
+											<div class="4u">
+												<a class="image fit"><img src="/images/macaw-sharpen.jpg" alt="" /></a>
+												<h3 class="major">Sharpening</h3>
+												<p>Both sharpening and softening are techniques used in tandem to increase edge detection in neural recognizers.</p>
+											</div>
+											<div class="4u$">
+												<a class="image fit"><img src="/images/macaw-soften.jpg" alt="" /></a>
+												<h3 class="major">Softening</h3>
+												<p>Softening images can be used - alongside sharpening - to coax image recognizers to learn about edges.</p>
+											</div>
+											<div class="4u">
+												<a class="image fit"><img src="/images/macaw-skewed.jpg" alt="" /></a>
+												<h3 class="major">Skew</h3>
+												<p>Skewing images allows the image recognizer to recognize photos of objects that were not taken front on.</p>
+											</div>
+											<div class="4u">
+												<a class="image fit"><img src="/images/macaw-padded.jpg" alt="" /></a>
+												<h3 class="major">Padding</h3>
+												<p>Most image recognition neural networks resize their images to a standard size to match the number of input neurons, effectively nullifying any gains from performing scaling operations. By padding an image a neural recognizer can learn about scale.</p>
+											</div>
+											<div class="4u$">
+												<a class="image fit"><img src="/images/macaw-seamed.jpg" alt="" /></a>
+												<h3 class="major">Seam Carving</h3>
+												<p>Seam carving removes a connected seam of pixels with the least amount of 'energy' across one dimension of an image. This operation provides the ability to scale images without scaling the subject.</p>
+											</div>
+											
+										</div>
 									</section>
 
 
@@ -175,8 +180,6 @@
   				console.log('callback - particles.js config loaded');
 			});
 			</script>
-
-			<script type="text/javascript" src="/assets/js/form-submission-handler.js"></script>
 
 	</body>
 </html>
