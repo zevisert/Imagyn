@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 import os
 sys.path.insert(0, '..')
 import json
@@ -21,7 +22,7 @@ synth = Synthesizer()
 """
 list of references to temporary directories
 """
-tdbase = '\\'.join(TemporaryDirectory().name.split('\\')[:-1])
+tdbase = '/'.join(TemporaryDirectory().name.split('/')[:-1])
 tempdirs = {}
 
 """
@@ -51,25 +52,38 @@ def get_temp_key(searchterm):
     other_urls = []
     for unrelated_synset in unrelated_synsets:
         other_urls += lex.API.urlsfor(lex.get_synset_id(unrelated_synset))[:10]
-    img_list = dwn.multidownload(urllist, td.name+'/'+searchterm, 'img_')
+    img_list = dwn.download_sequential(urllist, td.name+'/'+searchterm, 'img_')
     num_images = len(img_list)
-    dwn.multidownload(other_urls, td.name+'/not_'+searchterm, 'img_')
-    responseobj = {'dirname':td.name.split('\\')[-1], 'num_images':num_images}
+    dwn.download_sequential(other_urls, td.name+'/not_'+searchterm, 'img_')
+    responseobj = {'dirname':td.name.split('/')[-1], 'num_images':num_images}
     response = Response(json.dumps(responseobj), mimetype='application/json')
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+@app.route('/api/transform/test')
+def tartest():
+    tarfilepath = './training-set.tar.gz'
+    response = send_file(tarfilepath, mimetype="application/gzip")
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 @app.route('/api/transform/<tdir>/<searchterm>')
 def transform_images(tdir, searchterm):
-    realtdir = tdbase + '\\' + tdir
-    img_dir = realtdir + '\\' + searchterm
+    realtdir = tdbase + '/' + tdir
+    img_dir = realtdir + '/' + searchterm
     img_list = os.listdir(img_dir)
+    print(img_list)
     for img in img_list:
-        synth.randomizer(img, img_dir, 3, 2)
-    with tarfile.open(realtdir + '\\' + 'training-set.tar.gz', 'w:gz') as tar:
+        img_path = img_dir+'/'+img
+        synth.randomizer(img_path, img_dir, 3, 2)
+        sleep(1)
+    tarfilepath = realtdir + '/' + 'training-set.tar.gz'
+    with tarfile.open(tarfilepath, 'w:gz') as tar:
         tar.add(img_dir)
-        tar.add(realtdir + '\\not_' + searchterm)
-        return send_file(tar, mimetype="application/gzip")
+        tar.add(realtdir + '/not_' + searchterm)
+    response = send_file(tarfilepath, mimetype="application/gzip")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 @app.route('/api/pretrained/apple/<url>')
 def run_pretrained_model(url):
