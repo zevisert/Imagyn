@@ -1,0 +1,10 @@
+from imagyn.collections.lexicon import SynsetLexicon #get wnid
+from imagyn.collections.downloader import Downloader #get images
+
+//instantiate the classes  ie lex = SynsetLexicon()
+//instantiate the classes  ie dwn = Downloader()
+
+lex.get_synset(keyword string) -> sysnet class object
+lex.get_synset_id(synset class object) -> wnid
+lex.API.urlsfor(wnid) -> list of urls
+dwn.multidownload(urllist, dest_dir, prefix_string for files) -> list of downloaded images with paths given in dest
