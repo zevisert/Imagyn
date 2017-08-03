@@ -60,11 +60,19 @@ def get_temp_key(searchterm):
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+@app.route('/api/transform/test')
+def tartest():
+    tarfilepath = './training-set.tar.gz'
+    response = send_file(tarfilepath, mimetype="application/gzip")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
 @app.route('/api/transform/<tdir>/<searchterm>')
 def transform_images(tdir, searchterm):
     realtdir = os.path.join(tdbase, tdir)
     img_dir = os.path.join(realtdir, searchterm)
     img_list = os.listdir(img_dir)
+    print(img_list)
     for img in img_list:
         synth.randomizer(img, img_dir, 3, 2)
     with tarfile.open(os.path.join(realtdir, 'training-set.tar.gz'), 'w:gz') as tar:

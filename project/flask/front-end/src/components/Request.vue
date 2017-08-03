@@ -3,7 +3,7 @@
     <div id="img-wrapper" :class="{ tform : transform_stage}">
       <template v-if="!errored">
         <template v-if="transform_stage">
-          <h1>Synthesizing Images!</h1>
+          <h1>{{ synth_msg }}</h1>
           <img id="img-img" :class="current_animation" src="../assets/toucan-polaroid.jpg">
         </template>
         <template v-else>
@@ -64,7 +64,7 @@ export default {
         this.download_complete = true
         this.num_images = response.data.num_images
         this.tmp_dir = response.data.dirname
-        setTimeout(this.doTransforms(), 3000)
+        setTimeout(this.doTransforms, 4500)
       })
       .catch(() => {
         clearInterval(dotInc)
@@ -80,6 +80,7 @@ export default {
       dot_ticker: 0,
       dots: '.',
       errored: false,
+      synth_msg: 'Synthesizing Images!',
       current_animation: 'ani_r',
       transform_stage: false,
       download_complete: false
@@ -106,9 +107,16 @@ export default {
             break
         }
       }, 2500)
-      axios.get('http://localhost:5000/api/transform/' + this.tmp_dir + '/' + this.query)
+      axios.get('http://localhost:5000/api/transform/' + this.tmp_dir + '/' + this.query, {
+        responseType: 'arraybuffer'
+      })
       .then(response => {
-
+        this.synth_msg = 'Done!'
+        let blob = new Blob([response.data], {type: 'application/gzip'})
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = 'training-set.tar.gz'
+        link.click()
       })
     }
   }
