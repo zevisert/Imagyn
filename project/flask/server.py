@@ -1,5 +1,6 @@
 import sys
 import os
+import path
 sys.path.insert(0, '..')
 import json
 import tarfile
@@ -21,7 +22,7 @@ synth = Synthesizer()
 """
 list of references to temporary directories
 """
-tdbase = '\\'.join(TemporaryDirectory().name.split('\\')[:-1])
+tdbase = os.path.dirname(TemporaryDirectory().name)
 tempdirs = {}
 
 """
@@ -51,31 +52,32 @@ def get_temp_key(searchterm):
     other_urls = []
     for unrelated_synset in unrelated_synsets:
         other_urls += lex.API.urlsfor(lex.get_synset_id(unrelated_synset))[:10]
-    img_list = dwn.multidownload(urllist, td.name+'/'+searchterm, 'img_')
+    img_list = dwn.multidownload(urllist, os.path.join(td.name, searchterm), 'img')
     num_images = len(img_list)
-    dwn.multidownload(other_urls, td.name+'/not_'+searchterm, 'img_')
-    responseobj = {'dirname':td.name.split('\\')[-1], 'num_images':num_images}
+    dwn.multidownload(other_urls, os.path.join(td.name, 'not_'+searchterm), 'img')
+    responseobj = {'dirname':os.path.basename(td.name), 'num_images':num_images}
     response = Response(json.dumps(responseobj), mimetype='application/json')
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 @app.route('/api/transform/<tdir>/<searchterm>')
 def transform_images(tdir, searchterm):
-    realtdir = tdbase + '\\' + tdir
-    img_dir = realtdir + '\\' + searchterm
+    realtdir = os.path.join(tdbase, tdir)
+    img_dir = os.path.join(realtdir, searchterm)
     img_list = os.listdir(img_dir)
     for img in img_list:
         synth.randomizer(img, img_dir, 3, 2)
-    with tarfile.open(realtdir + '\\' + 'training-set.tar.gz', 'w:gz') as tar:
+    with tarfile.open(os.path.join(realtdir, 'training-set.tar.gz'), 'w:gz') as tar:
         tar.add(img_dir)
-        tar.add(realtdir + '\\not_' + searchterm)
+        tar.add(os.path.join(realtdir, 'not_' + searchterm))
         return send_file(tar, mimetype="application/gzip")
 
 @app.route('/api/pretrained/apple/<url>')
 def run_pretrained_model(url):
-    for f in os.listdir('./recognize_image'):
-        os.remove('./recognize_image'+f)
-    dwn.download_single_checked(url, './recognize_image', 'test_image_')
+    infer_dir = os.path.join(os.getcwd(), 'inference_test')
+    for f in os.listdir(infer_dir):
+        os.remove(os.path.join(infer_dir,f))
+    dwn.download_single_checked(url, infer_dir, 'test_image')
 
 if __name__ == '__main__':
     app.run()
