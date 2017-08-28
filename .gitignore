@@ -1,11 +1,11 @@
 webpage/\.env
 webpage/node_modules/
 
-project/multidownloaded/
-project/SynthesizedImages/
-project/luigi/SynthesizedImages/
-project/\.ipynb_checkpoints/
-project/\.idea/
+multidownloaded/
+SynthesizedImages/
+luigi/SynthesizedImages/
+\.ipynb_checkpoints/
+\.idea/
 
 *.log
 *.jpg
