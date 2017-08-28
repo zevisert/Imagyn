@@ -7,3 +7,5 @@ The project is now over and this repository is less active, but feel free to for
 
 Licensed for usage under the MIT Software Licensing agreement, and is free for usage so long as the usage is credited back to this repository.
 
+### Learn
+See [http://www.engr.uvic.ca/~zevisert/imagyn/](http://www.engr.uvic.ca/~zevisert/imagyn/)
