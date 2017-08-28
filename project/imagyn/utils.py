@@ -2,7 +2,7 @@ import os
 import argparse
 
 
-class isrwdir(argparse.Action):
+class IsRWDir(argparse.Action):
     """
     Argpase action to check if a directory has read and write permissions
     """

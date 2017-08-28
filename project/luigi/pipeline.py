@@ -6,11 +6,11 @@ from imagyn.collection import download
 from imagyn.collection import lexicon
 from imagyn.synthesis import synthesizer
 
-"""
-Wrapper task that initiates the other tasks
-"""
 
 class RunAll(luigi.WrapperTask):
+    """
+    Wrapper task that initiates the other tasks
+    """
     keyword = luigi.Parameter()
     imgCount = luigi.IntParameter()
     exact = luigi.IntParameter()
@@ -31,6 +31,7 @@ class RunAll(luigi.WrapperTask):
     def run(self):
         with self.output().open('w') as f:
             f.write("done")
+
 
 class DownloadImagesTask(luigi.Task):
     download_type = luigi.Parameter()
@@ -73,6 +74,7 @@ class DownloadImagesTask(luigi.Task):
             for key in downloaded_result:
                 for f in downloaded_result[key]:
                     fout.write(f + "\n")
+
 
 class SynthesizeTask(luigi.Task):
     keyword = luigi.Parameter()

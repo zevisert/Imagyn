@@ -5,13 +5,13 @@
 import ntpath
 import os
 import random
-import sys
 
 from imagyn.synthesis import transform
 from PIL import Image
 from skimage import io
 
-class Synthesizer():
+
+class Synthesizer:
     """
     Image Synthesizer\n
     Makes pretty images prettier
@@ -39,11 +39,11 @@ class Synthesizer():
             'sharpen': lambda img: transform.sharpen(img),
             'soften': lambda img: transform.soften(img),
             'grayscale': lambda img: transform.grayscale(img),
-            #'hard_black_and_white': lambda img: transform.hard_black_and_white(img),
-            'hue_change': lambda img: transform.hue_change(img, random.uniform(0.1,8), random.uniform(-360, 0)),
+            'hue_change': lambda img: transform.hue_change(img, random.uniform(0.1, 8), random.uniform(-360, 0)),
         }
 
-    def build_normal_distribution(self, maximum, minimum, mean, deviation, integer=False):
+    @staticmethod
+    def build_normal_distribution(maximum, minimum, mean, deviation, integer=False):
         """
         Build a normal distribution to use for randomizing values for input into transformation functions\n
         :param maximum: Float or int, The maximum value the value can be]\n
@@ -66,7 +66,6 @@ class Synthesizer():
 
         return value
 
-    # Randomization and Synthesis Functions
     def transform_chooser(self, img, funcname='random'):
         """
         A dictionary of functions that can be randomly called to apply a transform\n
@@ -82,7 +81,8 @@ class Synthesizer():
            
         return func(img)
 
-    def get_image_name(self, image_path):
+    @staticmethod
+    def get_image_name(image_path):
         """
         Pull the image name so that the new image has it in its file name
         :param image_path: File path of image to pull name from
@@ -92,7 +92,7 @@ class Synthesizer():
         file_name, extension = tail.split(".")
         return file_name
 
-    def randomizer(self, image_path, file_folder="SynthesizedImages", num_of_images=random.randint(1, 10), num_of_transforms=random.randint(1,6)):
+    def randomizer(self, image_path, file_folder="SynthesizedImages", num_of_images=random.randint(1, 10), num_of_transforms=random.randint(1, 6)):
         """
         Call this function to generate a set of random synthesized images\n
         :param image_path: File path of image to transform\n
@@ -194,7 +194,7 @@ class Synthesizer():
         parser.add_argument(
             "output_dir",
             type=str,
-            action=isrwdir,
+            action=IsRWDir,
             help="Output directory for synthesized images"
         )
 
@@ -209,5 +209,5 @@ class Synthesizer():
 
 if __name__== "__main__":
     import argparse
-    from imagyn.utils import isrwdir
+    from imagyn.utils import IsRWDir
     Synthesizer().main()

@@ -17,6 +17,7 @@ from PIL import Image, ImageChops
 from imagyn.collection import lexicon
 from imagyn.collection.utils import binary_images
 
+
 class Downloader:
     def __init__(self):
         """
@@ -50,7 +51,7 @@ class Downloader:
                 retrieved.append(filename)
 
         return retrieved
-    
+
     def download_multiple_synsets(self, count, synsets, destination, sequential=False):
         """
         Download images from multiple synsets.
@@ -69,13 +70,13 @@ class Downloader:
         if calculated_count == 0:
             sid = self.lexicon.get_synset_id(synsets[0])
 
-            if len(self.lexicon.API.wordsfor(sid)) > 0:
-                prefix = self.lexicon.API.wordsfor(sid)[0].replace(" ", "_")
+            if len(self.lexicon.API.words_for(sid)) > 0:
+                prefix = self.lexicon.API.words_for(sid)[0].replace(" ", "_")
             else:
                 prefix = ""
 
             downloaded_files[sid] = downloader(
-                urls=random.sample(self.lexicon.API.urlsfor(sid), count),
+                urls=random.sample(self.lexicon.API.urls_for(sid), count),
                 destination=destination,
                 prefix=prefix
             )
@@ -85,13 +86,13 @@ class Downloader:
             for synset in synsets:
                 sid = self.lexicon.get_synset_id(synset)
 
-                if len(self.lexicon.API.wordsfor(sid)) > 0:
-                    prefix = self.lexicon.API.wordsfor(sid)[0].replace(" ", "_")
+                if len(self.lexicon.API.words_for(sid)) > 0:
+                    prefix = self.lexicon.API.words_for(sid)[0].replace(" ", "_")
                 else:
                     prefix = ""
 
                 downloaded_files[sid] = downloader(
-                    urls=random.sample(self.lexicon.API.urlsfor(sid), count),
+                    urls=random.sample(self.lexicon.API.urls_for(sid), count),
                     destination=destination,
                     prefix=prefix
                 )
@@ -200,7 +201,7 @@ class Downloader:
         parser.add_argument(
             "output_dir",
             type=str,
-            action=isrwdir,
+            action=IsRWDir,
             help="Output directory for downloaded images"
         )
 
@@ -215,7 +216,7 @@ class Downloader:
 
         synset = self.lexicon.get_synset(keyword=args.keyword)
         wnid = self.lexicon.get_synset_id(synset)
-        urls = self.lexicon.API.urlsfor(wnid)
+        urls = self.lexicon.API.urls_for(wnid)
         urls = random.sample(urls, args.number)
 
         result = self.multidownload(urls, destination=args.output_dir, prefix=args.keyword)
@@ -225,7 +226,9 @@ class Downloader:
         if args.verbosity > 1:
             print("\n".join(result))
 
-if __name__== "__main__":
+
+if __name__ == "__main__":
     import argparse
-    from imagyn.utils import isrwdir
+    from imagyn.utils import IsRWDir
+
     Downloader().main()

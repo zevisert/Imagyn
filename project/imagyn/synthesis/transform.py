@@ -8,7 +8,7 @@ import tempfile
 from colorsys import hsv_to_rgb, rgb_to_hsv
 from math import tan
 
-from PIL import Image, ImageEnhance, ImageFilter, ImageOps
+from PIL import Image, ImageEnhance, ImageFilter
 from skimage import color, filters, io, transform, util
 
 
@@ -19,21 +19,27 @@ def skimage_to_pil(img):
     :param img: Skimage image object
     :return: PIL image object
     """
+    # Get the absolute path of the working directory
     abspath = os.path.dirname(__file__)
-    #get the absolute path of the working directory
-    temp = tempfile.NamedTemporaryFile(suffix=".jpg",delete=False,dir=abspath)
-    #create a temp file to store the image
+
+    # Create a temp file to store the image
+    temp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False, dir=abspath)
+
+    # Save the image into the temp file
     io.imsave(temp.name, img)
-    #save the image into the temp file
+
+    # Read the image as a PIL object
     pil_img = Image.open(temp.name)
-    #read the image as a PIL object
     pil_img.load()
-    #close the file
+
+    # Close the file
     temp.close()
-    #delete the file
+
+    # Delete the file
     os.remove(temp.name)
 
     return pil_img
+
 
 def pil_to_skimage(img):
     """
@@ -41,22 +47,26 @@ def pil_to_skimage(img):
     :param img: PIL image object
     :return: Skimage image object
     """
-    # get the absolute path of the working directory
+    # Get the absolute path of the working directory
     abspath = os.path.dirname(__file__)
-    # create a temp file to store the image
-    temp = tempfile.NamedTemporaryFile(suffix=".jpg",delete=False,dir=abspath)
-    # save the image into the temp file
+
+    # Create a temp file to store the image
+    temp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False, dir=abspath)
+
+    # Save the image into the temp file
     img.save(temp.name, 'JPEG')
-    # read the image as a skimage object
+
+    # Read the image as a SciKit image object
     ski_img = io.imread(temp.name, plugin='pil')
-    # close the file
+
+    # Close the file
     temp.close()
-    # delete the file
+
+    # Delete the file
     os.remove(temp.name)
 
     return ski_img
 
-# Image Synthesis Functions
 
 def change_contrast(img, level):
     """
@@ -65,11 +75,14 @@ def change_contrast(img, level):
     :param level: Adjust brightness (int)
     :return: PIL image object
     """
-    factor = (259 * (level + 255)) / (255 * (259 - level))
+    factor = (259 * (level + 255)) // (255 * (259 - level))
+
     def contrast(c):
         value = 128 + factor * (c - 128)
         return max(0, min(255, value))
+
     return img.point(contrast)
+
 
 def change_brightness(img, level):
     """
@@ -81,6 +94,7 @@ def change_brightness(img, level):
     brightness = ImageEnhance.Brightness(img)
     return brightness.enhance(level)
 
+
 def flip_vertical(img):
     """
     Flip image over the vertical axis
@@ -89,6 +103,7 @@ def flip_vertical(img):
     """
     return img.transpose(Image.FLIP_LEFT_RIGHT)
 
+
 def flip_horizontal(img):
     """
     Flip image over the horizontal axis
@@ -96,6 +111,7 @@ def flip_horizontal(img):
     :return: PIL image object
     """
     return img.transpose(Image.FLIP_TOP_BOTTOM)
+
 
 def flip_diagonal(img):
     """
@@ -122,14 +138,15 @@ def pad_image(img, new_size):
     # creating copies of the image based on the code below.
     # Need to consider checking for size before this function 
     # if we choose to randomize the values, 
-    # or else we'll end up with alot of doubles
+    # or else we'll end up with a lot of doubles
     # Check that all dimensions are greater or equal so it doesn't crop
     if all(i >= j for i, j in zip(new_size, old_size)):
-        new_img = Image.new("RGB", new_size)   ## luckily, this is already black!
+        new_img = Image.new("RGB", new_size)   # luckily, this is already black!
         new_img.paste(old_img, (int((new_size[0]-old_size[0])/2), int((new_size[1]-old_size[1])/2)))
         return new_img
     else:
         return old_img
+
 
 def skew_image(img, angle):
     """
@@ -141,15 +158,21 @@ def skew_image(img, angle):
     width, height = img.size
     # Get the width that is to be added to the image based on the angle of skew
     xshift = tan(abs(angle)) * height
-    new_width = width + int((xshift))
+    new_width = width + int(xshift)
 
-    if(new_width < 0):
+    if new_width < 0:
         return img
+
     # Apply transform
-    img = img.transform((new_width, height), Image.AFFINE,
-            (1, angle, -xshift if angle > 0 else 0, 0, 1, 0), Image.BICUBIC)
+    img = img.transform(
+        (new_width, height),
+        Image.AFFINE,
+        (1, angle, -xshift if angle > 0 else 0, 0, 1, 0),
+        Image.BICUBIC
+    )
     
     return img
+
 
 def seam_carve(img):
     """
@@ -170,8 +193,8 @@ def seam_carve(img):
     # Squish width if width >= height, squish height if height > width
     # Number of pixels to keep along the outer edges (5% of largest dimension)
     # Number of seams to be removed, (1 to 10% of largest dimension)
-    if(img_dimensions[1] >= img_dimensions[0]):
-        mode ="horizontal"
+    if img_dimensions[1] >= img_dimensions[0]:
+        mode = "horizontal"
         border = round(img_dimensions[1] * 0.05)
         num_seams = random.randint(1, round(0.1*img_dimensions[1]))
     
@@ -191,7 +214,7 @@ def seam_carve(img):
     
     return img_to_convert
 
-# Rotate image
+
 def rotate(img, rotation_angle):
     """
     Rotate image
@@ -205,18 +228,25 @@ def rotate(img, rotation_angle):
     except IOError as e:
         print(e)
 
+
 def scale(img, scaling_factor):
     """
     Scale Image
     :param img: PIL image object
+    :param scaling_factor: Integer size to scale by
     :return: PIL image object
     """
     try:
         original_width, original_height = img.size
-        img.thumbnail((original_height*scaling_factor, original_width*scaling_factor), Image.ANTIALIAS)
+        img.thumbnail(
+            (original_height * scaling_factor, original_width * scaling_factor),
+            Image.ANTIALIAS
+        )
+
         return img
     except IOError as e:
         print(e)
+
 
 def crop(img, scaling_factor_x, scaling_factor_y):
     """
@@ -234,6 +264,7 @@ def crop(img, scaling_factor_x, scaling_factor_y):
     except Exception as e:
         print(e)
 
+
 def white_noise(img):
     """
     Apply white noise to image
@@ -243,13 +274,14 @@ def white_noise(img):
     # Convert to skimage image
     img = pil_to_skimage(img)
         
-    img = util.img_as_ubyte(util.random_noise(img, mode='s&p', seed=None, clip=True))
-    img = util.img_as_ubyte(util.random_noise(img, mode='gaussian', seed=None, clip=True))
-    img = util.img_as_ubyte(util.random_noise(img, mode='speckle', seed=None, clip=True))
+    img = util.img_as_ubyte(util.random_noise(img, mode='s&p', seed=0, clip=True))
+    img = util.img_as_ubyte(util.random_noise(img, mode='gaussian', seed=0, clip=True))
+    img = util.img_as_ubyte(util.random_noise(img, mode='speckle', seed=0, clip=True))
     
     # Convert to PIL image
     img = skimage_to_pil(img)
     return img
+
 
 def sharpen(img):
     """
@@ -259,6 +291,7 @@ def sharpen(img):
     """
     img = img.filter(ImageFilter.SHARPEN)
     return img
+
 
 # Apply a smooth filter to the image to smooth edges (blurs)
 def soften(img):
@@ -270,6 +303,7 @@ def soften(img):
     img = img.filter(ImageFilter.SMOOTH)
     return img
 
+
 def grayscale(img):
     """
     Soft black and white filter
@@ -277,6 +311,7 @@ def grayscale(img):
     :return: PIL image object
     """
     return img.convert('L')
+
 
 def hard_black_and_white(img):
     """
@@ -286,9 +321,10 @@ def hard_black_and_white(img):
     """
     # black and white
     gray_img = img.convert('L')
-    bw_img = gray_img.point(lambda x: 0 if x<128 else 255, '1')
+    bw_img = gray_img.point(lambda x: 0 if x < 128 else 255, '1')
     bw_img = bw_img.convert('RGB')
     return bw_img
+
 
 def hue_change(img, intensity, value):
     """
@@ -301,16 +337,17 @@ def hue_change(img, intensity, value):
     original_width, original_height = img.size
 
     # Don't apply hue change if already grayscaled.
-    if(img.mode == 'L'):
+    if img.mode == 'L':
         return img
+
     else:
         ld = img.load()
         for y in range(original_height):
             for x in range(original_width):
-                r,g,b = ld[x,y]
-                h,s,v = rgb_to_hsv(r/255, g/255, b/255)
+                r, g, b = ld[x, y]
+                h, s, v = rgb_to_hsv(r/255, g/255, b/255)
                 h = (h + value/360.0) % 1.0
                 s = s**intensity
-                r,g,b = hsv_to_rgb(h, s, v)
-                ld[x,y] = (int(r * 255.9999), int(g * 255.9999), int(b * 255.9999))
+                r, g, b = hsv_to_rgb(h, s, v)
+                ld[x, y] = (int(r * 255.9999), int(g * 255.9999), int(b * 255.9999))
     return img

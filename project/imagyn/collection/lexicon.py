@@ -8,8 +8,9 @@ import os
 
 from nltk import download, data
 from nltk.corpus import wordnet as wn
-from nltk.corpus.reader.wordnet import Synset
+from nltk.corpus.reader.wordnet import Synset, WordNetError
 from functools import namedtuple
+
 
 class InvalidKeywordException(Exception):
     """
@@ -22,12 +23,13 @@ class InvalidKeywordException(Exception):
 
 Cache = namedtuple('Cache', ['synsets', 'words', 'urls', 'hyponyms'])
 
+
 class ImageNetAPI:
     def __init__(self):
         self.__cache = Cache(synsets=list(), words=dict(), urls=dict(), hyponyms=dict())
 
     @property
-    def allsynsets(self) -> list:
+    def all_synsets(self) -> list:
         """
         Get and cache the list of word net identifiers indexed by imagenet
         :return: List of strings, WordNet ID's (wnid)
@@ -42,7 +44,7 @@ class ImageNetAPI:
 
         return self.__cache.synsets
 
-    def wordsfor(self, wnid: str) -> list:
+    def words_for(self, wnid: str) -> list:
         """
         Get ImageNet's description of a synset, and cache the result
         :param wnid: synset offset, also called wordnet id
@@ -50,7 +52,7 @@ class ImageNetAPI:
         """
 
         if wnid not in self.__cache.words:
-            if wnid in self.allsynsets:
+            if wnid in self.all_synsets:
                 wordurl = "http://image-net.org/api/text/wordnet.synset.getwords?wnid={}".format(wnid)
                 wordreq = requests.get(wordurl)
 
@@ -59,7 +61,7 @@ class ImageNetAPI:
 
         return self.__cache.words.get(wnid, [])
 
-    def urlsfor(self, wnid: str) -> list:
+    def urls_for(self, wnid: str) -> list:
         """
         Get image urls for a synset from ImageNet, cache the result
         :param wnid: synset offset, also called wordnet id
@@ -67,7 +69,7 @@ class ImageNetAPI:
         """
 
         if wnid not in self.__cache.urls:
-            if wnid in self.allsynsets:
+            if wnid in self.all_synsets:
                 urlsurl = "http://image-net.org/api/text/imagenet.synset.geturls?wnid={}".format(wnid)
                 urlsreq = requests.get(urlsurl)
 
@@ -76,7 +78,7 @@ class ImageNetAPI:
 
         return self.__cache.urls.get(wnid, [])
 
-    def hyponymfor(self, wnid: str) -> list:
+    def hyponym_for(self, wnid: str) -> list:
         """
         Get hyponyms for a word as interpreted by ImageNet, cache the result
         :param wnid: synset offset, also called wordnet id
@@ -84,7 +86,7 @@ class ImageNetAPI:
         """
 
         if wnid not in self.__cache.hyponyms:
-            if wnid in self.allsynsets:
+            if wnid in self.all_synsets:
                 hyposurl = "http://image-net.org/api/text/wordnet.structure.hyponym?wnid={}".format(wnid)
                 hyposreq = requests.get(hyposurl)
 
@@ -121,7 +123,8 @@ class SynsetLexicon:
             # Invalid synset, it is not in WordNet.
             raise InvalidKeywordException("{} is not a viable keyword in ImageNet.".format(keyword))
 
-    def get_synset_id(self, synset: Synset):
+    @staticmethod
+    def get_synset_id(synset: Synset):
         """
         Get the corresponding synset id of the synset.
         :param synset: The synset to extract the id from
@@ -139,7 +142,7 @@ class SynsetLexicon:
         """
 
         sid = self.get_synset_id(synset)
-        return sid in self.API.allsynsets
+        return sid in self.API.all_synsets
 
     def get_siblings(self, synset: Synset):
         """
@@ -149,19 +152,20 @@ class SynsetLexicon:
         """
 
         siblings = []
-        siblingCount = 0
+        sibling_count = 0
         parent = self.get_parent(synset)
 
         for sibling in parent.hyponyms():
-            if siblingCount == 5:
+            if sibling_count == 5:
                 break
             if sibling != synset and self.valid_synset(sibling):
-                siblings.insert(siblingCount, sibling)
-                siblingCount += 1
+                siblings.insert(sibling_count, sibling)
+                sibling_count += 1
         
         return siblings
 
-    def get_parent(self, synset: Synset):
+    @staticmethod
+    def get_parent(synset: Synset):
         """
         Returns one of the parents of the synset.
         :param synset: The synset to obtain the parent from
@@ -170,7 +174,8 @@ class SynsetLexicon:
 
         return random.choice(synset.hypernyms())
 
-    def get_grandparents(self, synset: Synset):
+    @staticmethod
+    def get_grandparents(synset: Synset):
         """
         Returns all grandparents of the synset.
         :param synset: The synset to obtain the grandparents from
@@ -192,33 +197,33 @@ class SynsetLexicon:
         """
 
         # Get the matching grandparents in order to ensure unrelated synsets
-        matchGrandparents = self.get_grandparents(synset)
+        match_grandparents = self.get_grandparents(synset)
 
-        unrelatedSynsets = []
-        unrelatedCount = 0
-        while unrelatedCount < 5:
+        unrelated_synsets = []
+        unrelated_count = 0
+        while unrelated_count < 5:
             # Obtain an unrelated synset
-            unrelatedSynsetId = random.choice(self.API.allsynsets)
-            unrelatedSynsetName = random.choice(self.API.wordsfor(unrelatedSynsetId))
+            unrelated_synset_id = random.choice(self.API.all_synsets)
+            unrelated_synset_name = random.choice(self.API.words_for(unrelated_synset_id))
 
             # Keeps attempting to obtain an actual noun      
             try:
-                unrelatedSynset = wn.synset("{}.n.01".format(unrelatedSynsetName))
-            except:
+                unrelated_synset = wn.synset("{}.n.01".format(unrelated_synset_name))
+            except WordNetError:
                 # Skip to the next loop iteration to retrieve a noun
                 continue
             
             # Get grandparents of unrelated synset
-            unrelatedGrandparents = self.get_grandparents(unrelatedSynset)
+            unrelated_grandparents = self.get_grandparents(unrelated_synset)
             
             # Ensure valid synset and that it is truely unrelated
             # This is done by ensuring the set intersection of the grandparent synsets is empty
-            intersection = set(matchGrandparents) & set(unrelatedGrandparents)
-            if self.valid_synset(unrelatedSynset) and not bool(intersection):
-                unrelatedSynsets.insert(unrelatedCount, unrelatedSynset)
-                unrelatedCount += 1
+            intersection = set(match_grandparents) & set(unrelated_grandparents)
+            if self.valid_synset(unrelated_synset) and not bool(intersection):
+                unrelated_synsets.insert(unrelated_count, unrelated_synset)
+                unrelated_count += 1
 
-        return unrelatedSynsets
+        return unrelated_synsets
 
     def main(self):
         parser = argparse.ArgumentParser(description="Imagyn Lexicon")
